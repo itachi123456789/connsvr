@@ -67,7 +67,7 @@ func TestTcp(t *testing.T) {
 		}
 
 		if int(_msg.Cmd()) != cmd {
-			t.Errorf("get: %d, expected: %d", _msg.Cmd(), cmd)
+			t.Errorf("get: %v, expected: %v", _msg.Cmd(), cmd)
 		}
 		if _msg.Uid() != uid {
 			t.Errorf("get: %s, expected: %s", _msg.Uid(), uid)
