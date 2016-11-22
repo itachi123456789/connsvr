@@ -10,8 +10,13 @@
 * 启用一个协程用于接收后端push数据，启用若干个协程用于管理房间用户，用户被hash到对应协程
 * 每个协程需要通过管道接收数据，包括：加入房间，退出房间，上行消息
 * 每个用户连接启一个读协程
+* 无锁 
 
-## 使用方法
+## 特点
+* 通信协议足够简单高效
+* 服务设计尽量简化，通用性好
+
+## 协议
 * http长连接
 ```
 http://xxx.xxx.com/enter?rid=xxx&uid=xxx&callback=xxx
@@ -60,4 +65,10 @@ Body: 和业务方对接，connsvr会中转给client
 
 注：数据包长度限制50k内
 ```
+
+## 使用方法
+* 配置文件：[conf.json](http://github.com/simplejia/connsvr/tree/master/conf/conf.json) (json格式，支持注释)，可以通过传入自定义的env及conf参数来重定义配置文件里的参数，如：./connsvr -env dev -conf='hport=80;clog.mode=1'，多个参数用`;`分隔
+* 建议用[cmonitor](http://github.com/simplejia/cmonitor)启动管理
+* api文件夹提供的代码用于后端服务给connsvr推送消息的，实际是通过[clog](http://github.com/simplejia/clog)服务分发的
+* connsvr的上报数据，比如本机ip定期上报（用于更新待推送服务器列表），连接数上报，推送用时上报，等等，这些均是通过clog服务中转实现，所以我提供了clog的handler，近期我会更新到代码库里
 
