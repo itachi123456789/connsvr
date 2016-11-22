@@ -1,0 +1,77 @@
+{
+    "dev": {
+        "app": {
+            "name": "connsvr",
+            "tport": 44391,
+            "hport": 44392,
+            "bport": 44393
+        },
+        "pubs": {
+            "1": {
+                "addr": "127.0.0.1:80",
+                "addrType": "ip",
+                "host": "xxx.xxx.com",
+                "cgi": "/c/a",
+                "params": "cmd=%s&subcmd=%s&uid=%s&rid=%s&body=%s",
+                "method": "post",
+                "retry": 0,
+                "timeout": "50ms"
+            }
+        },
+        "clog": {
+            "name":"connsvr",
+            "mode": 3, // 0: none, 1: localfile, 2: clog (数字代表bit位)
+            "level": 15 // 0: none, 1: debug, 2: warn 4: error 8: info (数字代表bit位)
+        }
+    },
+    "test": {
+        "app": {
+            "name": "connsvr",
+            "tport": 44391,
+            "hport": 44392,
+            "bport": 44393
+        },
+        "pubs": {
+            "1": {
+                "addr": "127.0.0.1:80",
+                "addrType": "ip",
+                "host": "xxx.xxx.com",
+                "cgi": "/c/a",
+                "params": "cmd=%s&subcmd=%s&uid=%s&rid=%s&body=%s",
+                "method": "post",
+                "retry": 0,
+                "timeout": "50ms"
+            }
+        },
+        "clog": {
+            "name":"connsvr",
+            "mode": 3, // 0: none, 1: localfile, 2: clog (数字代表bit位)
+            "level": 15 // 0: none, 1: debug, 2: warn 4: error 8: info (数字代表bit位)
+        }
+    },
+    "prod": {
+        "app": {
+            "name": "connsvr",
+            "tport": 44391,
+            "hport": 44392,
+            "bport": 44393
+        },
+        "pubs": {
+            "1": {
+                "addr": "127.0.0.1:80",
+                "addrType": "ip",
+                "host": "xxx.xxx.com",
+                "cgi": "/c/a",
+                "params": "cmd=%s&subcmd=%s&uid=%s&rid=%s&body=%s",
+                "method": "post",
+                "retry": 0,
+                "timeout": "50ms"
+            }
+        },
+        "clog": {
+            "name":"connsvr",
+            "mode": 2, // 0: none, 1: localfile, 2: clog (数字代表bit位)
+            "level": 14 // 0: none, 1: debug, 2: warn 4: error 8: info (数字代表bit位)
+        }
+    }
+}
