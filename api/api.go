@@ -7,8 +7,8 @@ import (
 )
 
 type PushMsg struct {
-	Cmd    byte
-	Submcd byte
+	Cmd    cons.CMD
+	Subcmd byte
 	Uid    string
 	Rid    string
 	Body   string
@@ -17,5 +17,5 @@ type PushMsg struct {
 // Push用来给connsvr推送消息，复用clog的功能
 func Push(msg *PushMsg) error {
 	bs, _ := json.Marshal(msg)
-	clog.Busi("push", "%s", bs)
+	clog.Busi(cons.PUSH, "%s", bs)
 }
