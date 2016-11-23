@@ -5,7 +5,7 @@ import (
 	"runtime/debug"
 
 	"github.com/simplejia/clog"
-	"github.com/simplejia/connsvr/cons"
+	"github.com/simplejia/connsvr/comm"
 )
 
 const (
@@ -31,7 +31,7 @@ func (msg *MsgTcp) DecodeHeader(data []byte) (skipRead int, ok bool) {
 	}
 
 	msg.length = int(binary.BigEndian.Uint16(data[1:3]))
-	if msg.length > cons.BODY_LEN_LIMIT {
+	if msg.length > comm.BODY_LEN_LIMIT {
 		return len(data), false
 	}
 
@@ -49,7 +49,7 @@ func (msg *MsgTcp) Decode(data []byte) (ok bool) {
 	pos := 0
 	// skip sbyte+length
 	pos += 3
-	msg.cmd = cons.CMD(data[pos])
+	msg.cmd = comm.CMD(data[pos])
 	pos += 1
 	msg.subcmd = data[pos]
 	pos += 1

@@ -6,12 +6,11 @@ import (
 
 	"github.com/simplejia/clog"
 	"github.com/simplejia/connsvr/comm"
-	"github.com/simplejia/connsvr/cons"
 	"github.com/simplejia/connsvr/proto"
 )
 
 type ConnWrap struct {
-	T        cons.PROTO  // 消息类型
+	T        comm.PROTO  // 消息类型
 	C        net.Conn    // socket
 	Uid      string      // 用户
 	Rids     []string    // 房间列表
@@ -22,9 +21,9 @@ type ConnWrap struct {
 // return false will close the conn
 func (connWrap *ConnWrap) Read() (proto.Msg, bool) {
 	switch connWrap.T {
-	case cons.TCP:
+	case comm.TCP:
 		msg := new(proto.MsgTcp)
-		rawData := make([]byte, cons.BUF_SIZE) // 至少要大于sbyte+length大小
+		rawData := make([]byte, comm.BUF_SIZE) // 至少要大于sbyte+length大小
 		rawRead := 0
 		if len(connWrap.LeftData) > 0 {
 			rawData = append(connWrap.LeftData, rawData...)
@@ -32,7 +31,7 @@ func (connWrap *ConnWrap) Read() (proto.Msg, bool) {
 			connWrap.LeftData = nil
 		}
 		for rawRead < 3 { // magic number 3 is length of sbyte+length
-			readLen, err := comm.ReadTimeout(connWrap.C, rawData[rawRead:], cons.C_RTIMEOUT)
+			readLen, err := comm.ReadTimeout(connWrap.C, rawData[rawRead:], comm.C_RTIMEOUT)
 			if err != nil || readLen <= 0 {
 				clog.Warn("ConnWrap:ReadTimeout() 1, %v, %v", readLen, err)
 				return nil, false
@@ -52,7 +51,7 @@ func (connWrap *ConnWrap) Read() (proto.Msg, bool) {
 				rawData = append(rawData, make([]byte, msg.Length()-len(rawData))...)
 			}
 			for rawRead < msg.Length() {
-				readLen, err := comm.ReadTimeout(connWrap.C, rawData[rawRead:], cons.C_RTIMEOUT)
+				readLen, err := comm.ReadTimeout(connWrap.C, rawData[rawRead:], comm.C_RTIMEOUT)
 				if err != nil || readLen <= 0 {
 					clog.Warn("ConnWrap:ReadTimeout() 2, %v, %v", readLen, err)
 					return nil, false
@@ -69,12 +68,12 @@ func (connWrap *ConnWrap) Read() (proto.Msg, bool) {
 		}
 
 		return msg, true
-	case cons.HTTP:
+	case comm.HTTP:
 		msg := new(proto.MsgHttp)
-		rawData := make([]byte, cons.BUF_SIZE4HTTP) // BUF_SIZE一定要大于http header第一行的长度
+		rawData := make([]byte, comm.BUF_SIZE4HTTP) // BUF_SIZE一定要大于http header第一行的长度
 		rawRead := 0
 		for rawRead < len(rawData) {
-			readLen, err := comm.ReadTimeout(connWrap.C, rawData[rawRead:], cons.C_RTIMEOUT)
+			readLen, err := comm.ReadTimeout(connWrap.C, rawData[rawRead:], comm.C_RTIMEOUT)
 			if err != nil || readLen <= 0 {
 				clog.Warn("ConnWrap:ReadTimeout() %v, %v", readLen, err)
 				return nil, false
@@ -106,7 +105,7 @@ func (connWrap *ConnWrap) Write(msg proto.Msg) bool {
 		return true
 	}
 	for wlen := 0; wlen < len(data); {
-		_wlen, err := comm.WriteTimeout(connWrap.C, data[wlen:], cons.C_WTIMEOUT)
+		_wlen, err := comm.WriteTimeout(connWrap.C, data[wlen:], comm.C_WTIMEOUT)
 		if err != nil || _wlen <= 0 {
 			return false
 		}

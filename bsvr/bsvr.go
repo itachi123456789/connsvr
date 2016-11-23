@@ -2,7 +2,7 @@ package bsvr
 
 import (
 	"github.com/simplejia/clog"
-	"github.com/simplejia/connsvr/cons"
+	"github.com/simplejia/connsvr/comm"
 	"github.com/simplejia/connsvr/proto"
 	"github.com/simplejia/connsvr/room"
 
@@ -20,7 +20,7 @@ func Bserver(host string) {
 	}
 	defer conn.Close()
 
-	msg := proto.NewMsg(cons.UDP)
+	msg := proto.NewMsg(comm.UDP)
 	request := make([]byte, 1024*50)
 	for {
 		readLen, err := conn.Read(request)

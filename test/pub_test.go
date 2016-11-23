@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	_ "github.com/simplejia/connsvr"
+	"github.com/simplejia/connsvr/comm"
 	"github.com/simplejia/connsvr/conf"
-	"github.com/simplejia/connsvr/cons"
 	"github.com/simplejia/connsvr/proto"
 	"github.com/simplejia/utils"
 
@@ -26,8 +26,8 @@ func TestPub(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	msg := proto.NewMsg(cons.TCP)
-	msg.SetCmd(cons.ENTER)
+	msg := proto.NewMsg(comm.TCP)
+	msg.SetCmd(comm.ENTER)
 	msg.SetUid(uid)
 	msg.SetRid(rid)
 	msg.SetBody(text)
@@ -41,8 +41,8 @@ func TestPub(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	msg = proto.NewMsg(cons.TCP)
-	msg.SetCmd(cons.PUB)
+	msg = proto.NewMsg(comm.TCP)
+	msg.SetCmd(comm.PUB)
 	msg.SetSubcmd(1)
 	msg.SetUid(uid)
 	msg.SetRid(rid)
@@ -73,7 +73,7 @@ func TestPub(t *testing.T) {
 		t.Fatal("_msg.Decode() error")
 	}
 
-	if _msg.Cmd() == cons.ERR {
+	if _msg.Cmd() == comm.ERR {
 		t.Errorf("get: %v, expected: %v", _msg.Cmd(), msg.Cmd())
 	}
 	if _msg.Uid() != uid {

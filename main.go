@@ -12,7 +12,6 @@ import (
 	_ "github.com/simplejia/connsvr/clog"
 	"github.com/simplejia/connsvr/comm"
 	"github.com/simplejia/connsvr/conf"
-	"github.com/simplejia/connsvr/cons"
 	"github.com/simplejia/connsvr/fsvr"
 	"github.com/simplejia/utils"
 )
@@ -24,7 +23,7 @@ func init() {
 		for {
 			select {
 			case <-tick:
-				clog.Busi(cons.BUSI_REPORT, "%s", utils.GetLocalIp())
+				clog.Busi(comm.BUSI_REPORT, "%s", utils.GetLocalIp())
 			}
 		}
 	}()
@@ -33,9 +32,9 @@ func init() {
 func main() {
 	clog.Info("main() ulimit_nofile: %d", comm.GetRlimitFile())
 
-	go fsvr.Fserver(fmt.Sprintf("%s:%d", "0.0.0.0", conf.C.App.Tport), cons.TCP)
+	go fsvr.Fserver(fmt.Sprintf("%s:%d", "0.0.0.0", conf.C.App.Tport), comm.TCP)
 
-	go fsvr.Fserver(fmt.Sprintf("%s:%d", "0.0.0.0", conf.C.App.Hport), cons.HTTP)
+	go fsvr.Fserver(fmt.Sprintf("%s:%d", "0.0.0.0", conf.C.App.Hport), comm.HTTP)
 
 	go bsvr.Bserver(fmt.Sprintf("%s:%d", utils.GetLocalIp(), conf.C.App.Bport))
 

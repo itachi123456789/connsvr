@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/simplejia/clog"
+	"github.com/simplejia/connsvr/comm"
 	"github.com/simplejia/connsvr/conn"
-	"github.com/simplejia/connsvr/cons"
 	"github.com/simplejia/connsvr/proto"
 	"github.com/simplejia/utils"
 )
@@ -30,7 +30,7 @@ type RoomMap struct {
 }
 
 func (roomMap *RoomMap) init() {
-	roomMap.n = cons.U_MAP_NUM
+	roomMap.n = comm.U_MAP_NUM
 	roomMap.chs = make([]chan *roomMsg, roomMap.n)
 	for i := 0; i < roomMap.n; i++ {
 		roomMap.chs[i] = make(chan *roomMsg, 1e5)
@@ -85,7 +85,7 @@ func (roomMap *RoomMap) proc(i int) {
 				break
 			}
 
-			btime := time.Now().Unix()
+			btime := time.Now()
 			uid_ex := m.Uid()
 			for uid, connWrap := range rids_m {
 				if uid != connWrap.Uid {
@@ -109,18 +109,17 @@ func (roomMap *RoomMap) proc(i int) {
 					continue
 				}
 			}
-			etime := time.Now().Unix()
-			stats, _ := json.Marshal(
-				map[string]interface{}{
-					"ip":    utils.GetLocalIp(),
-					"i":     i,
-					"rid":   rid,
-					"num":   len(rids_m),
-					"btime": btime,
-					"etime": etime,
-					"msg":   fmt.Sprintf("%+v", m),
-				})
-			clog.Busi(cons.BUSI_STAT, "%s", stats)
+			etime := time.Now()
+			stat, _ := json.Marshal(&comm.Stat{
+				Ip:    utils.GetLocalIp(),
+				N:     i,
+				Rid:   rid,
+				Msg:   fmt.Sprintf("%+v", m),
+				Num:   len(rids_m),
+				Btime: btime,
+				Etime: etime,
+			})
+			clog.Busi(comm.BUSI_STAT, "%s", stat)
 		default:
 			clog.Error("RoomMap:proc() unexpected cmd %v", msg.cmd)
 			return

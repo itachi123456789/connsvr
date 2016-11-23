@@ -13,13 +13,12 @@ import (
 	"github.com/simplejia/connsvr/comm"
 	"github.com/simplejia/connsvr/conf"
 	"github.com/simplejia/connsvr/conn"
-	"github.com/simplejia/connsvr/cons"
 	"github.com/simplejia/connsvr/proto"
 	"github.com/simplejia/connsvr/room"
 	"github.com/simplejia/utils"
 )
 
-func Fserver(host string, t cons.PROTO) {
+func Fserver(host string, t comm.PROTO) {
 	tcpAddr, err := net.ResolveTCPAddr("tcp", host)
 	if err != nil {
 		panic(err)
@@ -37,8 +36,8 @@ func Fserver(host string, t cons.PROTO) {
 			continue
 		}
 
-		c.SetReadBuffer(cons.BUF_SIZE * 10)
-		c.SetWriteBuffer(cons.BUF_SIZE * 15)
+		c.SetReadBuffer(comm.BUF_SIZE * 10)
+		c.SetWriteBuffer(comm.BUF_SIZE * 15)
 
 		connWrap := &conn.ConnWrap{
 			T: t,
@@ -48,11 +47,16 @@ func Fserver(host string, t cons.PROTO) {
 	}
 }
 
+// 请赋值成自己的根据addrType, addr返回ip:port的函数
+var PubAddrFunc = func(addrType, addr string) (string, error) {
+	return addr, nil
+}
+
 func dispatchCmd(connWrap *conn.ConnWrap, msg proto.Msg) bool {
 	switch msg.Cmd() {
-	case cons.PING:
+	case comm.PING:
 		return true
-	case cons.ENTER:
+	case comm.ENTER:
 		// 不同用户不能复用同一个连接, 新用户替代老用户数据
 		if connWrap.Uid != msg.Uid() {
 			for _, rid := range connWrap.Rids {
@@ -63,11 +67,11 @@ func dispatchCmd(connWrap *conn.ConnWrap, msg proto.Msg) bool {
 		connWrap.Misc = msg.Misc()
 		room.RM.Add(msg.Rid(), connWrap)
 		return true
-	case cons.LEAVE:
+	case comm.LEAVE:
 		room.RM.Del(msg.Rid(), connWrap)
 		return true
-	case cons.PUB:
-		clog.Info("dispatchCmd() cons.PUSH: %+v", msg)
+	case comm.PUB:
+		clog.Info("dispatchCmd() comm.PUSH: %+v", msg)
 
 		subcmd := strconv.Itoa(int(msg.Subcmd()))
 		pub := conf.C.Pubs[subcmd]
@@ -75,9 +79,9 @@ func dispatchCmd(connWrap *conn.ConnWrap, msg proto.Msg) bool {
 			clog.Error("dispatchCmd() no expected subcmd: %s", subcmd)
 			return true
 		}
-		addr, err := comm.AddrFunc(pub.AddrType, pub.Addr)
+		addr, err := PubAddrFunc(pub.AddrType, pub.Addr)
 		if err != nil {
-			clog.Error("dispatchCmd() comm.AddrFunc error: %v", err)
+			clog.Error("dispatchCmd() PubAddrFunc error: %v", err)
 			return true
 		}
 		arrs := []string{
@@ -130,7 +134,7 @@ func dispatchCmd(connWrap *conn.ConnWrap, msg proto.Msg) bool {
 		}
 
 		if step == maxstep {
-			msg.SetCmd(cons.ERR)
+			msg.SetCmd(comm.ERR)
 			msg.SetBody("")
 		} else {
 			msg.SetBody(string(body))

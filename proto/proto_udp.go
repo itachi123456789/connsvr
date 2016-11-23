@@ -4,7 +4,7 @@ import (
 	"runtime/debug"
 
 	"github.com/simplejia/clog"
-	"github.com/simplejia/connsvr/cons"
+	"github.com/simplejia/connsvr/comm"
 )
 
 type MsgUdp struct {
@@ -20,7 +20,7 @@ func (msg *MsgUdp) Decode(data []byte) (ok bool) {
 	}()
 
 	pos := 0
-	msg.cmd = cons.CMD(data[pos])
+	msg.cmd = comm.CMD(data[pos])
 	pos += 1
 	msg.subcmd = data[pos]
 	pos += 1

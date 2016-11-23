@@ -3,14 +3,14 @@ package proto
 import (
 	"fmt"
 
-	"github.com/simplejia/connsvr/cons"
+	"github.com/simplejia/connsvr/comm"
 )
 
 type Msg interface {
 	Length() int
 	SetLength(int)
-	Cmd() cons.CMD
-	SetCmd(cons.CMD)
+	Cmd() comm.CMD
+	SetCmd(comm.CMD)
 	Subcmd() byte
 	SetSubcmd(byte)
 	Uid() string
@@ -27,7 +27,7 @@ type Msg interface {
 
 type MsgComm struct {
 	length int
-	cmd    cons.CMD
+	cmd    comm.CMD
 	subcmd byte
 	uid    string
 	rid    string
@@ -51,11 +51,11 @@ func (msg *MsgComm) Length() int {
 	return msg.length
 }
 
-func (msg *MsgComm) Cmd() cons.CMD {
+func (msg *MsgComm) Cmd() comm.CMD {
 	return msg.cmd
 }
 
-func (msg *MsgComm) SetCmd(cmd cons.CMD) {
+func (msg *MsgComm) SetCmd(cmd comm.CMD) {
 	msg.cmd = cmd
 }
 
@@ -99,13 +99,13 @@ func (msg *MsgComm) Decode([]byte) bool {
 	return false
 }
 
-func NewMsg(t cons.PROTO) Msg {
+func NewMsg(t comm.PROTO) Msg {
 	switch t {
-	case cons.TCP:
+	case comm.TCP:
 		return new(MsgTcp)
-	case cons.HTTP:
+	case comm.HTTP:
 		return new(MsgHttp)
-	case cons.UDP:
+	case comm.UDP:
 		return new(MsgUdp)
 	default:
 		panic(fmt.Sprintf("NewMsg() not support proto: %v", t))

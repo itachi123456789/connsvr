@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/simplejia/connsvr/cons"
+	"github.com/simplejia/connsvr/comm"
 
 	"fmt"
 	"net/url"
@@ -78,7 +78,7 @@ func (msg *MsgHttp) Decode(data []byte) bool {
 		msg.rid = rid
 		msg.uid = uid
 		msg.misc = callback
-		msg.cmd = cons.ENTER
+		msg.cmd = comm.ENTER
 		return true
 	default:
 		return false

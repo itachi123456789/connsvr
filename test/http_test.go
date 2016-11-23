@@ -6,8 +6,8 @@ import (
 	"strconv"
 
 	_ "github.com/simplejia/connsvr"
+	"github.com/simplejia/connsvr/comm"
 	"github.com/simplejia/connsvr/conf"
-	"github.com/simplejia/connsvr/cons"
 	"github.com/simplejia/connsvr/proto"
 	"github.com/simplejia/utils"
 
@@ -70,8 +70,8 @@ func TestHttp(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		msg := proto.NewMsg(cons.UDP)
-		msg.SetCmd(cons.CMD(cmd))
+		msg := proto.NewMsg(comm.UDP)
+		msg.SetCmd(comm.CMD(cmd))
 		msg.SetRid(rid)
 		msg.SetBody(text)
 		data, ok := msg.Encode()

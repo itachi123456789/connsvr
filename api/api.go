@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 
 	"github.com/simplejia/clog"
+	"github.com/simplejia/connsvr/comm"
 )
 
 type PushMsg struct {
-	Cmd    cons.CMD
+	Cmd    comm.CMD
 	Subcmd byte
 	Uid    string
 	Rid    string
@@ -17,5 +18,6 @@ type PushMsg struct {
 // Push用来给connsvr推送消息，复用clog的功能
 func Push(msg *PushMsg) error {
 	bs, _ := json.Marshal(msg)
-	clog.Busi(cons.PUSH, "%s", bs)
+	clog.Busi(comm.BUSI_PUSH, "%s", bs)
+	return nil
 }
