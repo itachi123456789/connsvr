@@ -45,8 +45,6 @@ func Fserver(host string, t cons.PROTO) {
 			C: c,
 		}
 		go frecv(connWrap)
-
-		clog.Busi(cons.BUSI_CONN, "%d,%v", 1, connWrap.T)
 	}
 }
 
@@ -64,11 +62,9 @@ func dispatchCmd(connWrap *conn.ConnWrap, msg proto.Msg) bool {
 		connWrap.Uid = msg.Uid()
 		connWrap.Misc = msg.Misc()
 		room.RM.Add(msg.Rid(), connWrap)
-		clog.Busi(cons.BUSI_RUSR, "1,%s,%s", msg.Rid(), connWrap.Uid)
 		return true
 	case cons.LEAVE:
 		room.RM.Del(msg.Rid(), connWrap)
-		clog.Busi(cons.BUSI_RUSR, "-1,%s,%s", msg.Rid(), connWrap.Uid)
 		return true
 	case cons.PUB:
 		clog.Info("dispatchCmd() cons.PUSH: %+v", msg)
@@ -158,8 +154,6 @@ func frecv(connWrap *conn.ConnWrap) {
 		for _, rid := range connWrap.Rids {
 			room.RM.Del(rid, connWrap)
 		}
-
-		clog.Busi(cons.BUSI_CONN, "%d,%v", -1, connWrap.T)
 	}()
 
 	for {

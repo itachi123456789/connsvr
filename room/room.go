@@ -1,6 +1,8 @@
 package room
 
 import (
+	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/simplejia/clog"
@@ -83,7 +85,6 @@ func (roomMap *RoomMap) proc(i int) {
 				break
 			}
 
-			num := 0
 			btime := time.Now().Unix()
 			uid_ex := m.Uid()
 			for uid, connWrap := range rids_m {
@@ -107,10 +108,19 @@ func (roomMap *RoomMap) proc(i int) {
 					delete(rids_m, uid)
 					continue
 				}
-				num++
 			}
 			etime := time.Now().Unix()
-			clog.Busi(cons.BUSI_PUSH, "%d,%d,%d,%s,%v,%d,%s", btime, etime, num, rid, m.Cmd(), m.Subcmd(), m.Body())
+			stats, _ := json.Marshal(
+				map[string]interface{}{
+					"ip":    utils.GetLocalIp(),
+					"i":     i,
+					"rid":   rid,
+					"num":   len(rids_m),
+					"btime": btime,
+					"etime": etime,
+					"msg":   fmt.Sprintf("%+v", m),
+				})
+			clog.Busi(cons.BUSI_STAT, "%s", stats)
 		default:
 			clog.Error("RoomMap:proc() unexpected cmd %v", msg.cmd)
 			return
@@ -119,6 +129,11 @@ func (roomMap *RoomMap) proc(i int) {
 }
 
 func (roomMap *RoomMap) Add(rid string, connWrap *conn.ConnWrap) {
+	if rid == "" || connWrap.Uid == "" {
+		return
+	}
+	clog.Info("RoomMap:Add() %s, %+v", rid, connWrap)
+
 	i := utils.Hash33(connWrap.Uid) % roomMap.n
 	select {
 	case roomMap.chs[i] <- &roomMsg{cmd: ADD, rid: rid, body: connWrap}:
@@ -128,6 +143,11 @@ func (roomMap *RoomMap) Add(rid string, connWrap *conn.ConnWrap) {
 }
 
 func (roomMap *RoomMap) Del(rid string, connWrap *conn.ConnWrap) {
+	if rid == "" || connWrap.Uid == "" {
+		return
+	}
+	clog.Info("RoomMap:Del() %s, %+v", rid, connWrap)
+
 	i := utils.Hash33(connWrap.Uid) % roomMap.n
 	select {
 	case roomMap.chs[i] <- &roomMsg{cmd: DEL, rid: rid, body: connWrap}:
@@ -137,6 +157,8 @@ func (roomMap *RoomMap) Del(rid string, connWrap *conn.ConnWrap) {
 }
 
 func (roomMap *RoomMap) Push(rid string, msg proto.Msg) {
+	clog.Info("RoomMap:Push() %s, %+v", rid, msg)
+
 	for _, ch := range roomMap.chs {
 		select {
 		case ch <- &roomMsg{cmd: PUSH, rid: rid, body: msg}:

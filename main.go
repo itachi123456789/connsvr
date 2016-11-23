@@ -20,7 +20,7 @@ import (
 func init() {
 	// 定期上报，用于后端维护connsvr服务器列表
 	go func() {
-		tick := time.Tick(time.Second * 30)
+		tick := time.Tick(time.Minute)
 		for {
 			select {
 			case <-tick:

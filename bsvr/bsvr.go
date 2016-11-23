@@ -27,12 +27,14 @@ func Bserver(host string) {
 		if err != nil || readLen <= 0 {
 			continue
 		}
-		if !msg.Decode(request[:readLen]) {
+
+		ok := msg.Decode(request[:readLen])
+		clog.Debug("Bserver() msg.Decode %+v, %v", msg, ok)
+		if !ok {
 			clog.Error("Bserver:Decode() %v", request[:readLen])
 			continue
 		}
 
-		clog.Info("Bserver() msg: %+v", msg)
 		dispatchCmd(msg)
 	}
 }

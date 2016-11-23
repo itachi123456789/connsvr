@@ -71,5 +71,5 @@ Body: 和业务方对接，connsvr会中转给client
 * 配置文件：[conf.json](http://github.com/simplejia/connsvr/tree/master/conf/conf.json) (json格式，支持注释)，可以通过传入自定义的env及conf参数来重定义配置文件里的参数，如：./connsvr -env dev -conf='hport=80;clog.mode=1'，多个参数用`;`分隔
 * 建议用[cmonitor](http://github.com/simplejia/cmonitor)做进程启动管理
 * api文件夹提供的代码用于后端服务给connsvr推送消息的，实际是通过[clog](http://github.com/simplejia/clog)服务分发的
-* connsvr的上报数据，比如本机ip定期上报（用于更新待推送服务器列表），连接数上报，推送用时上报，等等，这些均是通过clog服务中转实现，所以我提供了clog的handler，近期我会更新到代码库里
+* connsvr的上报数据，比如本机ip定期上报（用于更新待推送服务器列表），连接数、推送用时上报，等等，这些均是通过clog服务中转实现，所以我提供了clog的handler，近期我会更新到代码库里
 

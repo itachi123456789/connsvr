@@ -65,14 +65,19 @@ func (msg *MsgHttp) Decode(data []byte) bool {
 	switch pUrl.Path {
 	case "/enter":
 		values := pUrl.Query()
-		rid, uid := values.Get("rid"), values.Get("uid")
+		rid := values.Get("rid")
+		uid := values.Get("uid")
+		callback := values.Get("callback")
 		if rid == "" || uid == "" {
+			return false
+		}
+		if len(rid) > 255 || len(uid) > 255 || len(callback) > 255 {
 			return false
 		}
 
 		msg.rid = rid
 		msg.uid = uid
-		msg.misc = values.Get("callback")
+		msg.misc = callback
 		msg.cmd = cons.ENTER
 		return true
 	default:
