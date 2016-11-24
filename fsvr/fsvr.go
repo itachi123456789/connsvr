@@ -58,12 +58,13 @@ func dispatchCmd(connWrap *conn.ConnWrap, msg proto.Msg) bool {
 		return true
 	case comm.ENTER:
 		// 不同用户不能复用同一个连接, 新用户替代老用户数据
-		if connWrap.Uid != msg.Uid() {
+		if connWrap.Uid != msg.Uid() || connWrap.Sid != msg.Sid() {
 			for _, rid := range connWrap.Rids {
 				room.RM.Del(rid, connWrap)
 			}
 		}
 		connWrap.Uid = msg.Uid()
+		connWrap.Sid = msg.Sid()
 		connWrap.Misc = msg.Misc()
 		room.RM.Add(msg.Rid(), connWrap)
 		return true
@@ -88,6 +89,7 @@ func dispatchCmd(connWrap *conn.ConnWrap, msg proto.Msg) bool {
 			strconv.Itoa(int(msg.Cmd())),
 			subcmd,
 			msg.Uid(),
+			msg.Sid(),
 			msg.Rid(),
 			url.QueryEscape(msg.Body()),
 		}

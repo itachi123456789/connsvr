@@ -34,6 +34,7 @@ func TestTcp(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+		defer conn.Close()
 
 		msg := proto.NewMsg(comm.TCP)
 		msg.SetCmd(comm.ENTER)
@@ -92,6 +93,7 @@ func TestTcp(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+		defer conn.Close()
 
 		msg := proto.NewMsg(comm.UDP)
 		msg.SetCmd(comm.CMD(cmd))

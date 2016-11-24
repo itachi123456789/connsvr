@@ -15,6 +15,8 @@ type Msg interface {
 	SetSubcmd(byte)
 	Uid() string
 	SetUid(string)
+	Sid() string
+	SetSid(string)
 	Rid() string
 	SetRid(string)
 	Body() string
@@ -30,6 +32,7 @@ type MsgComm struct {
 	cmd    comm.CMD
 	subcmd byte
 	uid    string
+	sid    string
 	rid    string
 	body   string
 	misc   interface{}
@@ -81,6 +84,14 @@ func (msg *MsgComm) Uid() string {
 
 func (msg *MsgComm) SetUid(uid string) {
 	msg.uid = uid
+}
+
+func (msg *MsgComm) Sid() string {
+	return msg.sid
+}
+
+func (msg *MsgComm) SetSid(sid string) {
+	msg.sid = sid
 }
 
 func (msg *MsgComm) Rid() string {

@@ -12,7 +12,7 @@
                 "addrType": "ip",
                 "host": "xxx.xxx.com",
                 "cgi": "/c/a",
-                "params": "cmd=%s&subcmd=%s&uid=%s&rid=%s&body=%s",
+                "params": "cmd=%s&subcmd=%s&uid=%s&sid=%s&rid=%s&body=%s",
                 "method": "post",
                 "retry": 0,
                 "timeout": "50ms"
@@ -37,7 +37,7 @@
                 "addrType": "ip",
                 "host": "xxx.xxx.com",
                 "cgi": "/c/a",
-                "params": "cmd=%s&subcmd=%s&uid=%s&rid=%s&body=%s",
+                "params": "cmd=%s&subcmd=%s&uid=%s&sid=%s&rid=%s&body=%s",
                 "method": "post",
                 "retry": 0,
                 "timeout": "50ms"
@@ -62,7 +62,7 @@
                 "addrType": "ip",
                 "host": "xxx.xxx.com",
                 "cgi": "/c/a",
-                "params": "cmd=%s&subcmd=%s&uid=%s&rid=%s&body=%s",
+                "params": "cmd=%s&subcmd=%s&uid=%s&sid=%s&rid=%s&body=%s",
                 "method": "post",
                 "retry": 0,
                 "timeout": "50ms"

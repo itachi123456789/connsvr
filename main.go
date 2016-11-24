@@ -23,7 +23,7 @@ func init() {
 		for {
 			select {
 			case <-tick:
-				clog.Busi(comm.BUSI_REPORT, "%s", utils.GetLocalIp())
+				clog.Busi(comm.BUSI_REPORT, "%s:%d", utils.GetLocalIp(), conf.C.App.Bport)
 			}
 		}
 	}()

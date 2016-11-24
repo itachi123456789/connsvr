@@ -28,6 +28,10 @@ func (msg *MsgUdp) Decode(data []byte) (ok bool) {
 	pos += 1
 	msg.uid = string(data[pos : pos+uid_len])
 	pos += uid_len
+	sid_len := int(data[pos])
+	pos += 1
+	msg.sid = string(data[pos : pos+sid_len])
+	pos += sid_len
 	rid_len := int(data[pos])
 	pos += 1
 	msg.rid = string(data[pos : pos+rid_len])
@@ -43,6 +47,8 @@ func (msg *MsgUdp) Encode() ([]byte, bool) {
 	data = append(data, msg.subcmd)
 	data = append(data, byte(len(msg.uid)))
 	data = append(data, msg.uid...)
+	data = append(data, byte(len(msg.sid)))
+	data = append(data, msg.sid...)
 	data = append(data, byte(len(msg.rid)))
 	data = append(data, msg.rid...)
 	data = append(data, msg.body...)

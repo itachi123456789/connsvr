@@ -21,6 +21,7 @@ func (msg *MsgHttp) Encode() ([]byte, bool) {
 		"cmd":    strconv.Itoa(int(msg.cmd)),
 		"subcmd": strconv.Itoa(int(msg.subcmd)),
 		"uid":    msg.uid,
+		"sid":    msg.sid,
 		"rid":    msg.rid,
 		"body":   msg.body,
 	})
@@ -67,16 +68,18 @@ func (msg *MsgHttp) Decode(data []byte) bool {
 		values := pUrl.Query()
 		rid := values.Get("rid")
 		uid := values.Get("uid")
+		sid := values.Get("sid")
 		callback := values.Get("callback")
 		if rid == "" || uid == "" {
 			return false
 		}
-		if len(rid) > 255 || len(uid) > 255 || len(callback) > 255 {
+		if len(rid) > 255 || len(uid) > 255 || len(sid) > 255 || len(callback) > 255 {
 			return false
 		}
 
 		msg.rid = rid
 		msg.uid = uid
+		msg.sid = sid
 		msg.misc = callback
 		msg.cmd = comm.ENTER
 		return true

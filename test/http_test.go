@@ -21,6 +21,7 @@ func TestHttp(t *testing.T) {
 	cmd := 99
 	rid := "r1"
 	uid := "u1"
+	sid := "s1"
 	text := "hello world"
 
 	wg := sync.WaitGroup{}
@@ -33,6 +34,7 @@ func TestHttp(t *testing.T) {
 			Params: map[string]string{
 				"rid":      rid,
 				"uid":      uid,
+				"sid":      sid,
 				"callback": "",
 			},
 		}
@@ -69,6 +71,7 @@ func TestHttp(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+		defer conn.Close()
 
 		msg := proto.NewMsg(comm.UDP)
 		msg.SetCmd(comm.CMD(cmd))

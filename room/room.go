@@ -40,7 +40,7 @@ func (roomMap *RoomMap) init() {
 
 func (roomMap *RoomMap) proc(i int) {
 	ch := roomMap.chs[i]
-	data := map[string]map[string]*conn.ConnWrap{}
+	data := map[string]map[[2]string]*conn.ConnWrap{}
 
 	for msg := range ch {
 		switch msg.cmd {
@@ -49,7 +49,7 @@ func (roomMap *RoomMap) proc(i int) {
 			connWrap := msg.body.(*conn.ConnWrap)
 			rids_m, ok := data[rid]
 			if !ok {
-				rids_m = map[string]*conn.ConnWrap{}
+				rids_m = map[[2]string]*conn.ConnWrap{}
 				data[rid] = rids_m
 			}
 			connWrap.Rids = append(connWrap.Rids, rid)
@@ -59,7 +59,9 @@ func (roomMap *RoomMap) proc(i int) {
 					break
 				}
 			}
-			rids_m[connWrap.Uid] = connWrap
+
+			ukey := [2]string{connWrap.Uid, connWrap.Sid}
+			rids_m[ukey] = connWrap
 		case DEL:
 			rid := msg.rid
 			connWrap := msg.body.(*conn.ConnWrap)
@@ -67,7 +69,9 @@ func (roomMap *RoomMap) proc(i int) {
 			if !ok {
 				break
 			}
-			delete(rids_m, connWrap.Uid)
+
+			ukey := [2]string{connWrap.Uid, connWrap.Sid}
+			delete(rids_m, ukey)
 			if len(rids_m) == 0 {
 				delete(data, rid)
 			}
@@ -86,26 +90,34 @@ func (roomMap *RoomMap) proc(i int) {
 			}
 
 			btime := time.Now()
-			uid_ex := m.Uid()
-			for uid, connWrap := range rids_m {
-				if uid != connWrap.Uid {
+			ukey_ex := [2]string{m.Uid(), m.Sid()}
+			for ukey, connWrap := range rids_m {
+				_ukey := [2]string{connWrap.Uid, connWrap.Sid}
+				if ukey != _ukey {
 					connWrap.Close()
-					delete(rids_m, uid)
+					delete(rids_m, ukey)
 					continue
 				}
-				if uid_ex == connWrap.Uid {
-					continue
+				if ukey_ex[1] == "" { // 当后端没有传入sid时，只匹配uid
+					if ukey_ex[0] == _ukey[0] {
+						continue
+					}
+				} else {
+					if ukey_ex == _ukey {
+						continue
+					}
 				}
 				msg := proto.NewMsg(connWrap.T)
 				msg.SetCmd(m.Cmd())
 				msg.SetSubcmd(m.Subcmd())
 				msg.SetUid(connWrap.Uid)
+				msg.SetSid(connWrap.Sid)
 				msg.SetRid(m.Rid())
 				msg.SetBody(m.Body())
 				msg.SetMisc(connWrap.Misc)
 				if ok := connWrap.Write(msg); !ok {
 					connWrap.Close()
-					delete(rids_m, uid)
+					delete(rids_m, ukey)
 					continue
 				}
 			}

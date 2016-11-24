@@ -8,9 +8,10 @@ import (
 )
 
 type PushMsg struct {
-	Cmd    comm.CMD
+	Cmd    byte
 	Subcmd byte
 	Uid    string
+	Sid    string
 	Rid    string
 	Body   string
 }

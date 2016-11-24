@@ -25,6 +25,7 @@ func TestPub(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer conn.Close()
 
 	msg := proto.NewMsg(comm.TCP)
 	msg.SetCmd(comm.ENTER)

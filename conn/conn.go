@@ -13,6 +13,7 @@ type ConnWrap struct {
 	T        comm.PROTO  // 消息类型
 	C        net.Conn    // socket
 	Uid      string      // 用户
+	Sid      string      // session id，区分同一个用户不同连接
 	Rids     []string    // 房间列表
 	Misc     interface{} // 额外参数
 	LeftData []byte      // 粘包产生的多读的数据

@@ -19,29 +19,32 @@
 ## 协议
 * http长连接
 ```
-http://xxx.xxx.com/enter?rid=xxx&uid=xxx&callback=xxx
+http://xxx.xxx.com/enter?rid=xxx&uid=xxx&sid=xxx&callback=xxx
 请求参数说明:
 rid: 房间号
 uid: 用户id
+sid: session_id，区分同一uid不同连接，[可选]
 callback: jsonp回调函数，[可选]
 
 返回数据说明：
 [callback(][json body][)]
-示例如下: cb({"body":"hello world","cmd":"99","rid":"r1","subcmd":"0","uid":"r2"})
+示例如下: cb({"body":"hello world","cmd":"99","rid":"r1","sid":"","subcmd":"0","uid":"r2"})
 
 注：不支持上行，http长连接上行可通过短连接实现
 ```
 
 * tcp自定义协议长连接（包括收包，回包）
 ```
-Sbyte+Length+Cmd+Subcmd+UidLen+Uid+RidLen+Rid+Body+Ebyte
+Sbyte+Length+Cmd+Subcmd+UidLen+Uid+SidLen+Sid+RidLen+Rid+Body+Ebyte
 
 Sbyte: 1个字节，固定值：0xfa，标识数据包开始
 Length: 2个字节(网络字节序)，包括自身在内整个数据包的长度
 Cmd: 1个字节，0x01：心跳 0x02：加入房间 0x03：退出房间 0x04：上行消息 0xff：connsvr异常
 Subcmd: 1个字节，当用于上行消息时，路由不同的后端接口
 UidLen: 1个字节，代表Uid长度
-Uid: 用户id，对于app，可以是设备id，对于浏览器，可以是生成的随机串，浏览器多窗口，多标签需单独生成随机串
+Uid: 用户id，对于app，可以是设备id，对于浏览器，可以是登陆用户id
+SidLen: 1个字节，代表Sid长度
+Sid: session_id，区分同一uid不同连接，[可选]对于浏览器，可以是生成的随机串，浏览器多窗口，多标签需单独生成随机串
 RidLen: 1个字节，代表Rid长度
 Rid: 房间id
 Body: 和业务方对接，connsvr会中转给业务方，中转给业务方数据示例如下：uid=u1&rid=r1&cmd=99&subcmd=0&body=hello，数据路由见conf/conf.json pubs节点
@@ -54,12 +57,14 @@ Ebyte: 1个字节，固定值：0xfb，标识数据包结束
 
 * 后端push协议格式(udp)
 ```
-Cmd+Subcmd+UidLen+Uid+RidLen+Rid+Body:
+Cmd+Subcmd+UidLen+Uid+SidLen+Sid+RidLen+Rid+Body:
 
 Cmd: 1个字节，经由connsvr直接转发给client
 Subcmd: 1个字节，经由connsvr直接转发给client
 UidLen: 1个字节，代表Uid长度
-Uid: 指定排除的用户
+Uid: 指定排除的用户uid
+SidLen: 1个字节，代表Sid长度
+Sid: 指定排除的用户session_id，当没有传入Sid时，只匹配uid
 RidLen: 1个字节，代表Rid长度
 Rid: 房间id
 Body: 和业务方对接，connsvr会中转给client
@@ -71,5 +76,28 @@ Body: 和业务方对接，connsvr会中转给client
 * 配置文件：[conf.json](http://github.com/simplejia/connsvr/tree/master/conf/conf.json) (json格式，支持注释)，可以通过传入自定义的env及conf参数来重定义配置文件里的参数，如：./connsvr -env dev -conf='hport=80;clog.mode=1'，多个参数用`;`分隔
 * 建议用[cmonitor](http://github.com/simplejia/cmonitor)做进程启动管理
 * api文件夹提供的代码用于后端服务给connsvr推送消息的，实际是通过[clog](http://github.com/simplejia/clog)服务分发的
-* connsvr的上报数据，比如本机ip定期上报（用于更新待推送服务器列表），连接数、推送用时上报，等等，这些均是通过clog服务中转实现，所以我提供了clog的handler，近期我会更新到代码库里
-
+* connsvr的上报数据，比如本机ip定期上报（用于更新待推送服务器列表），连接数、推送用时上报，等等，这些均是通过clog服务中转实现，所以我提供了clog的handler，均在testdata目录里：相应要修改clog的conf.json部分如下：
+```
+"connsvr/logbusi_report": [
+    {
+        "handler": "connreporthandler",
+        "params": {
+            "redis": {"addrtype": "ip", "addr": ":6379"}
+        }
+    }
+],
+"connsvr/logbusi_stat": [
+    {
+        "handler": "connstathandler",
+        "params": {}
+    }
+],
+"demo/logbusi_push": [
+    {
+        "handler": "connpushhandler",
+        "params": {
+            "redis": {"addrtype": "ip", "addr": ":6379"}
+        }
+    }
+]
+```
