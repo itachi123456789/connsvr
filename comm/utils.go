@@ -15,12 +15,20 @@ func GetRlimitFile() uint64 {
 	return rLimit.Cur
 }
 
-func ReadTimeout(c net.Conn, data []byte, timeout time.Duration) (int, error) {
-	c.SetReadDeadline(time.Now().Add(timeout))
+func ReadTimeout(c net.Conn, data []byte, timeout string) (int, error) {
+	dur, err := time.ParseDuration(timeout)
+	if err != nil {
+		return 0, err
+	}
+	c.SetReadDeadline(time.Now().Add(dur))
 	return c.Read(data)
 }
 
-func WriteTimeout(c net.Conn, data []byte, timeout time.Duration) (int, error) {
-	c.SetWriteDeadline(time.Now().Add(timeout))
+func WriteTimeout(c net.Conn, data []byte, timeout string) (int, error) {
+	dur, err := time.ParseDuration(timeout)
+	if err != nil {
+		return 0, err
+	}
+	c.SetWriteDeadline(time.Now().Add(dur))
 	return c.Write(data)
 }

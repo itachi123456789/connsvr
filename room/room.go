@@ -7,6 +7,7 @@ import (
 
 	"github.com/simplejia/clog"
 	"github.com/simplejia/connsvr/comm"
+	"github.com/simplejia/connsvr/conf"
 	"github.com/simplejia/connsvr/conn"
 	"github.com/simplejia/connsvr/proto"
 	"github.com/simplejia/utils"
@@ -30,7 +31,7 @@ type RoomMap struct {
 }
 
 func (roomMap *RoomMap) init() {
-	roomMap.n = comm.U_MAP_NUM
+	roomMap.n = conf.C.Cons.U_MAP_NUM
 	roomMap.chs = make([]chan *roomMsg, roomMap.n)
 	for i := 0; i < roomMap.n; i++ {
 		roomMap.chs[i] = make(chan *roomMsg, 1e5)

@@ -4,15 +4,6 @@ package comm
 
 import "time"
 
-const (
-	BUF_SIZE       = 128                   // 一次读取数据大小, 大于大部分数据包长
-	BUF_SIZE4HTTP  = 128                   // 一次读取数据大小, 大于http包头第一行
-	BODY_LEN_LIMIT = 4096                  // 包最大长度
-	U_MAP_NUM      = 300                   // 用户分组hash
-	C_RTIMEOUT     = time.Minute * 2       // 读超时
-	C_WTIMEOUT     = time.Millisecond * 10 // 写超时
-)
-
 type CMD byte
 
 const (

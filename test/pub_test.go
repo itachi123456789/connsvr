@@ -14,8 +14,8 @@ import (
 )
 
 func TestPub(t *testing.T) {
-	rid := "r1"
-	uid := "u1"
+	rid := "r2"
+	uid := "u2"
 	text := "hello world"
 
 	conn, err := net.Dial(

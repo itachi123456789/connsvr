@@ -6,6 +6,16 @@
             "hport": 44392,
             "bport": 44393
         },
+        "cons": {
+            "buf_size": 128, // 一次读取数据大小, 大于大部分数据包长
+            "buf_size4http": 128, // 一次读取数据大小, 大于http包头第一行
+            "body_len_limit": 4096, // 包最大长度
+            "u_map_num": 300, // 用户分组hash
+            "c_rtimeout": "2m", // 读超时
+            "c_wtimeout": "10ms", // 写超时
+            "c_rbuf": 512, // 读缓冲区大小
+            "c_wbuf": 2048 // 写缓冲区大小
+        },
         "pubs": {
             "1": {
                 "addr": "127.0.0.1:80",
@@ -31,6 +41,16 @@
             "hport": 44392,
             "bport": 44393
         },
+        "cons": {
+            "buf_size": 128, // 一次读取数据大小, 大于大部分数据包长
+            "buf_size4http": 128, // 一次读取数据大小, 大于http包头第一行
+            "body_len_limit": 4096, // 包最大长度
+            "u_map_num": 300, // 用户分组hash
+            "c_rtimeout": "2m", // 读超时
+            "c_wtimeout": "10ms", // 写超时
+            "c_rbuf": 512, // 读缓冲区大小
+            "c_wbuf": 2048 // 写缓冲区大小
+        },
         "pubs": {
             "1": {
                 "addr": "127.0.0.1:80",
@@ -55,6 +75,16 @@
             "tport": 44391,
             "hport": 44392,
             "bport": 44393
+        },
+        "cons": {
+            "buf_size": 128, // 一次读取数据大小, 大于大部分数据包长
+            "buf_size4http": 128, // 一次读取数据大小, 大于http包头第一行
+            "body_len_limit": 4096, // 包最大长度
+            "u_map_num": 300, // 用户分组hash
+            "c_rtimeout": "2m", // 读超时
+            "c_wtimeout": "10ms", // 写超时
+            "c_rbuf": 512, // 读缓冲区大小
+            "c_wbuf": 2048 // 写缓冲区大小
         },
         "pubs": {
             "1": {

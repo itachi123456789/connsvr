@@ -36,8 +36,8 @@ func Fserver(host string, t comm.PROTO) {
 			continue
 		}
 
-		c.SetReadBuffer(comm.BUF_SIZE * 10)
-		c.SetWriteBuffer(comm.BUF_SIZE * 15)
+		c.SetReadBuffer(conf.C.Cons.C_RBUF)
+		c.SetWriteBuffer(conf.C.Cons.C_WBUF)
 
 		connWrap := &conn.ConnWrap{
 			T: t,

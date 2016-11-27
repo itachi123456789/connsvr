@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"regexp"
+	"runtime"
 	"strconv"
 	"strings"
 
@@ -21,6 +22,16 @@ type Conf struct {
 		Tport int
 		Hport int
 		Bport int
+	}
+	Cons *struct {
+		BUF_SIZE       int    // 一次读取数据大小, 大于大部分数据包长
+		BUF_SIZE4HTTP  int    // 一次读取数据大小, 大于http包头第一行
+		BODY_LEN_LIMIT int    // 包最大长度
+		U_MAP_NUM      int    // 用户分组hash
+		C_RTIMEOUT     string // 读超时
+		C_WTIMEOUT     string // 写超时
+		C_RBUF         int    // 读缓冲区大小
+		C_WBUF         int    // 写缓冲区大小
 	}
 	Pubs map[string]*struct {
 		Addr     string
@@ -51,14 +62,8 @@ func init() {
 	flag.StringVar(&conf, "conf", "", "set custom conf")
 	flag.Parse()
 
-	dir := ""
-	for _, p := range []string{".", ".."} {
-		dir = filepath.Join(p, "conf")
-		if info, err := os.Stat(dir); err == nil && info.IsDir() {
-			break
-		}
-	}
-	fcontent, err := ioutil.ReadFile(filepath.Join(dir, "conf.json"))
+	_, file, _, _ := runtime.Caller(1)
+	fcontent, err := ioutil.ReadFile(filepath.Join(filepath.Dir(file), "conf.json"))
 	if err != nil {
 		panic(err)
 	}
