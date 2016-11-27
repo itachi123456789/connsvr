@@ -29,8 +29,6 @@ callback: jsonp回调函数，[可选]
 返回数据说明：
 [callback(][json body][)]
 示例如下: cb({"body":"hello world","cmd":"99","rid":"r1","sid":"","subcmd":"0","uid":"r2"})
-
-注：不支持上行，http长连接上行可通过短连接实现
 ```
 
 * tcp自定义协议长连接（包括收包，回包）
@@ -52,7 +50,6 @@ Ebyte: 1个字节，固定值：0xfb，标识数据包结束
 
 注1：上行数据包长度，即Length大小，限制4096字节内，下行不限
 注2：当connsvr服务处理异常，比如调用后端服务失败，返回给client的数据包，Cmd：0xff
-注3：目前大部分常量限制都是在代码里定义的，后续也会考虑放在conf/conf.json里
 ```
 
 * 后端push协议格式(udp)
