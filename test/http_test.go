@@ -31,9 +31,6 @@ func TestHttp(t *testing.T) {
 		defer wg.Done()
 		gpp := &utils.GPP{
 			Uri: fmt.Sprintf("http://:%d/enter", conf.C.App.Hport),
-			Headers: map[string]string{
-				"Connection": "Close",
-			},
 			Params: map[string]string{
 				"rid":      rid,
 				"uid":      uid,

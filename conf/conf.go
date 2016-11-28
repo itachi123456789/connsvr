@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"reflect"
 	"regexp"
-	"runtime"
 	"strconv"
 	"strings"
 
@@ -62,8 +61,14 @@ func init() {
 	flag.StringVar(&conf, "conf", "", "set custom conf")
 	flag.Parse()
 
-	_, file, _, _ := runtime.Caller(1)
-	fcontent, err := ioutil.ReadFile(filepath.Join(filepath.Dir(file), "conf.json"))
+	dir := "conf"
+	for i := 0; i < 3; i++ {
+		if info, err := os.Stat(dir); err == nil && info.IsDir() {
+			break
+		}
+		dir = filepath.Join("..", dir)
+	}
+	fcontent, err := ioutil.ReadFile(filepath.Join(dir, "conf.json"))
 	if err != nil {
 		panic(err)
 	}
