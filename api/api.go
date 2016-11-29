@@ -14,6 +14,7 @@ type PushMsg struct {
 	Sid    string
 	Rid    string
 	Body   string
+	Ext    string
 }
 
 // Push用来给connsvr推送消息，复用clog的功能

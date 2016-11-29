@@ -65,7 +65,7 @@ Ebyte: 1个字节，固定值：0xfb，标识数据包结束
 
 * 后端push协议格式(udp)
 ```
-Cmd+Subcmd+UidLen+Uid+SidLen+Sid+RidLen+Rid+BodyLen+Body:
+Cmd+Subcmd+UidLen+Uid+SidLen+Sid+RidLen+Rid+BodyLen+Body+ExtLen+Ext:
 
 Cmd: 1个字节，经由connsvr直接转发给client
 Subcmd: 1个字节，经由connsvr直接转发给client
@@ -77,6 +77,8 @@ RidLen: 1个字节，代表Rid长度
 Rid: 房间id
 BodyLen: 2个字节(网络字节序)，代表Body长度
 Body: 和业务方对接，connsvr会中转给client
+ExtLen: 2个字节(网络字节序)，代表Ext长度
+Ext: 扩展字段
 
 注：数据包长度限制50k内
 ```

@@ -63,6 +63,7 @@ func ConnPushHandler(cate, subcate, body string, params map[string]interface{}) 
 		msg.SetSid(pushMsg.Sid)
 		msg.SetRid(pushMsg.Rid)
 		msg.SetBody(pushMsg.Body)
+		msg.SetExt(pushMsg.Ext)
 		data, ok := msg.Encode()
 		if !ok {
 			clog.Error("ConnPushHandler() msg encode error, ipport: %s, msg: %+v", ipport, msg)
