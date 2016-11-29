@@ -54,11 +54,9 @@ BodyLen: 2个字节(网络字节序)，代表Body长度
 Body: 和业务方对接，connsvr会中转给业务方，中转给业务方数据示例如下：uid=u1&rid=r1&cmd=99&subcmd=0&body=hello，数据路由见conf/conf.json pubs节点
 ExtLen: 2个字节(网络字节序)，代表Ext长度
 Ext: 扩展字段，当来自于connsvr时，目前支持如下：
-```
-{
-    "GetMsgKind": 1 // 1: 推送通知，然后客户端主动拉后端服务  2: 推送整条消息，客户端不用拉 3: 推送通知，然后客户端来connsvr拉消息
+{    
+    "GetMsgKind": 1 // 1: 推送通知，然后客户端主动拉后端服务  2: 推送整条消息，客户端不用拉 3: 推送通知，然后客户端来connsvr拉消息   
 }
-```
 Ebyte: 1个字节，固定值：0xfb，标识数据包结束
 
 注1：上行数据包长度，即Length大小，限制4096字节内，下行不限
