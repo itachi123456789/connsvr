@@ -33,7 +33,7 @@ callback: jsonp回调函数，[可选]
 
 * tcp自定义协议长连接（包括收包，回包）
 ```
-Sbyte+Length+Cmd+Subcmd+UidLen+Uid+SidLen+Sid+RidLen+Rid+Body+Ebyte
+Sbyte+Length+Cmd+Subcmd+UidLen+Uid+SidLen+Sid+RidLen+Rid+BodyLen+Body+ExtLen+Ext+Ebyte
 
 Sbyte: 1个字节，固定值：0xfa，标识数据包开始
 Length: 2个字节(网络字节序)，包括自身在内整个数据包的长度
@@ -45,7 +45,10 @@ SidLen: 1个字节，代表Sid长度
 Sid: session_id，区分同一uid不同连接，[可选]对于浏览器，可以是生成的随机串，浏览器多窗口，多标签需单独生成随机串
 RidLen: 1个字节，代表Rid长度
 Rid: 房间id
+BodyLen: 2个字节(网络字节序)，代表Body长度
 Body: 和业务方对接，connsvr会中转给业务方，中转给业务方数据示例如下：uid=u1&rid=r1&cmd=99&subcmd=0&body=hello，数据路由见conf/conf.json pubs节点
+ExtLen: 2个字节(网络字节序)，代表Ext长度
+Ext: 扩展字段
 Ebyte: 1个字节，固定值：0xfb，标识数据包结束
 
 注1：上行数据包长度，即Length大小，限制4096字节内，下行不限
@@ -54,7 +57,7 @@ Ebyte: 1个字节，固定值：0xfb，标识数据包结束
 
 * 后端push协议格式(udp)
 ```
-Cmd+Subcmd+UidLen+Uid+SidLen+Sid+RidLen+Rid+Body:
+Cmd+Subcmd+UidLen+Uid+SidLen+Sid+RidLen+Rid+BodyLen+Body+ExtLen+Ext:
 
 Cmd: 1个字节，经由connsvr直接转发给client
 Subcmd: 1个字节，经由connsvr直接转发给client
@@ -64,7 +67,10 @@ SidLen: 1个字节，代表Sid长度
 Sid: 指定排除的用户session_id，当没有传入Sid时，只匹配uid
 RidLen: 1个字节，代表Rid长度
 Rid: 房间id
+BodyLen: 2个字节(网络字节序)，代表Body长度
 Body: 和业务方对接，connsvr会中转给client
+ExtLen: 2个字节(网络字节序)，代表Ext长度
+Ext: 扩展字段
 
 注：数据包长度限制50k内
 ```

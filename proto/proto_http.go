@@ -36,8 +36,7 @@ func (msg *MsgHttp) Encode() ([]byte, bool) {
 	}
 	return []byte(
 		fmt.Sprintf("HTTP/1.1 200 OK\r\n"+
-			"Content-Type:application/json;charset=UTF-8\r\n"+
-			"Connection: Keep-Alive\r\n"+
+			"Content-Type: application/json;charset=UTF-8\r\n"+
 			"Content-Length: %d\r\n\r\n%s",
 			len(resp), resp,
 		)), true

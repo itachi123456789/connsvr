@@ -21,6 +21,8 @@ type Msg interface {
 	SetRid(string)
 	Body() string
 	SetBody(string)
+	Ext() string
+	SetExt(string)
 	Misc() interface{}
 	SetMisc(interface{})
 	Encode() ([]byte, bool)
@@ -35,6 +37,7 @@ type MsgComm struct {
 	sid    string
 	rid    string
 	body   string
+	ext    string
 	misc   interface{}
 }
 
@@ -76,6 +79,14 @@ func (msg *MsgComm) Body() string {
 
 func (msg *MsgComm) SetBody(body string) {
 	msg.body = body
+}
+
+func (msg *MsgComm) Ext() string {
+	return msg.ext
+}
+
+func (msg *MsgComm) SetExt(ext string) {
+	msg.ext = ext
 }
 
 func (msg *MsgComm) Uid() string {

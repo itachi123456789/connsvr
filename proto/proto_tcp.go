@@ -66,8 +66,14 @@ func (msg *MsgTcp) Decode(data []byte) (ok bool) {
 	pos += 1
 	msg.rid = string(data[pos : pos+rid_len])
 	pos += rid_len
-	msg.body = string(data[pos : msg.length-1])
-	pos = msg.length - 1
+	body_len := int(binary.BigEndian.Uint16(data[pos : pos+2]))
+	pos += 2
+	msg.body = string(data[pos : body_len+pos])
+	pos += body_len
+	ext_len := int(binary.BigEndian.Uint16(data[pos : pos+2]))
+	pos += 2
+	msg.ext = string(data[pos : ext_len+pos])
+	pos += ext_len
 	ebyte := data[pos]
 	if ebyte != EBYTE {
 		return false
@@ -88,7 +94,12 @@ func (msg *MsgTcp) Encode() ([]byte, bool) {
 	data = append(data, msg.sid...)
 	data = append(data, byte(len(msg.rid)))
 	data = append(data, msg.rid...)
+	data = append(data, make([]byte, 2)...)
+	binary.BigEndian.PutUint16(data[len(data)-2:len(data)], uint16(len(msg.body)))
 	data = append(data, msg.body...)
+	data = append(data, make([]byte, 2)...)
+	binary.BigEndian.PutUint16(data[len(data)-2:len(data)], uint16(len(msg.ext)))
+	data = append(data, msg.ext...)
 	data = append(data, EBYTE)
 	binary.BigEndian.PutUint16(data[1:3], uint16(len(data)))
 

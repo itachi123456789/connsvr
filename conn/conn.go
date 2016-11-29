@@ -64,8 +64,8 @@ func (connWrap *ConnWrap) Read() (proto.Msg, bool) {
 			connWrap.LeftData = rawData[msg.Length():rawRead]
 		}
 
-		if !msg.Decode(rawData[:rawRead]) {
-			clog.Warn("ConnWrap:Decode() %v", rawData[:rawRead])
+		if !msg.Decode(rawData[:msg.Length()]) {
+			clog.Warn("ConnWrap:Decode() %v", rawData[:msg.Length()])
 			return nil, true
 		}
 
