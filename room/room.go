@@ -115,6 +115,11 @@ func (roomMap *RoomMap) proc(i int) {
 				msg.SetSid(connWrap.Sid)
 				msg.SetRid(m.Rid())
 				msg.SetBody(m.Body())
+				ext := &comm.ServExt{
+					GetMsgKind: conf.V.Get().GetMsgKind,
+				}
+				ext_bs, _ := json.Marshal(ext)
+				msg.SetExt(string(ext_bs))
 				msg.SetMisc(connWrap.Misc)
 				if ok := connWrap.Write(msg); !ok {
 					connWrap.Close()

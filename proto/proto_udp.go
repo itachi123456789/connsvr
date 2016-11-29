@@ -40,10 +40,6 @@ func (msg *MsgUdp) Decode(data []byte) (ok bool) {
 	body_len := int(binary.BigEndian.Uint16(data[pos : pos+2]))
 	pos += 2
 	msg.body = string(data[pos : body_len+pos])
-	pos += body_len
-	ext_len := int(binary.BigEndian.Uint16(data[pos : pos+2]))
-	pos += 2
-	msg.ext = string(data[pos : ext_len+pos])
 
 	return true
 }
@@ -61,9 +57,6 @@ func (msg *MsgUdp) Encode() ([]byte, bool) {
 	data = append(data, make([]byte, 2)...)
 	binary.BigEndian.PutUint16(data[len(data)-2:len(data)], uint16(len(msg.body)))
 	data = append(data, msg.body...)
-	data = append(data, make([]byte, 2)...)
-	binary.BigEndian.PutUint16(data[len(data)-2:len(data)], uint16(len(msg.ext)))
-	data = append(data, msg.ext...)
 
 	return data, true
 }

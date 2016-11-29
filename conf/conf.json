@@ -16,6 +16,12 @@
             "c_rbuf": 512, // 读缓冲区大小
             "c_wbuf": 2048 // 写缓冲区大小
         },
+        "varhost": { // 定时获取远程服务器最新配置，用于参数动态变更
+            "addr": "127.0.0.1:80",
+            "addrType": "ip",
+            "host": "xxx.xxx.com",
+            "cgi": "/c/a"
+        },
         "pubs": {
             "1": {
                 "addr": "127.0.0.1:80",
@@ -51,6 +57,12 @@
             "c_rbuf": 512, // 读缓冲区大小
             "c_wbuf": 2048 // 写缓冲区大小
         },
+        "varhost": {
+            "addr": "127.0.0.1:80",
+            "addrType": "ip",
+            "host": "xxx.xxx.com",
+            "cgi": "/c/a"
+        },
         "pubs": {
             "1": {
                 "addr": "127.0.0.1:80",
@@ -85,6 +97,12 @@
             "c_wtimeout": "10ms", // 写超时
             "c_rbuf": 512, // 读缓冲区大小
             "c_wbuf": 2048 // 写缓冲区大小
+        },
+        "varhost": {
+            "addr": "127.0.0.1:80",
+            "addrType": "ip",
+            "host": "xxx.xxx.com",
+            "cgi": "/c/a"
         },
         "pubs": {
             "1": {

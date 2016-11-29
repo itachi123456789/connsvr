@@ -5,6 +5,11 @@
 * 每个用户建立一个连接，每个连接唯一对应一个用户，用户可以同时加入多个房间
 * 推送数据时，可以不给房间内特定用户推数据
 * 接收到上行数据后，同步转发给相应业务处理服务
+* 支持定期拉取远程服务器配置数据
+* 根据远程配置信息，可给客户端下发消息拉取方式指令，目前支持:
+  * 推送通知，然后客户端主动拉后端服务  
+  * 推送整条消息，客户端不用拉
+  * 推送通知，然后客户端来connsvr拉消息(connsvr为支持此功能，需进一步开发，预计很快更新代码)
 
 ## 实现
 * 启用一个协程用于接收后端push数据，启用若干个协程用于管理房间用户，用户被hash到对应协程
@@ -48,7 +53,12 @@ Rid: 房间id
 BodyLen: 2个字节(网络字节序)，代表Body长度
 Body: 和业务方对接，connsvr会中转给业务方，中转给业务方数据示例如下：uid=u1&rid=r1&cmd=99&subcmd=0&body=hello，数据路由见conf/conf.json pubs节点
 ExtLen: 2个字节(网络字节序)，代表Ext长度
-Ext: 扩展字段
+Ext: 扩展字段，当来自于connsvr时，目前支持如下：
+```
+{
+    "GetMsgKind": 1 // 1: 推送通知，然后客户端主动拉后端服务  2: 推送整条消息，客户端不用拉 3: 推送通知，然后客户端来connsvr拉消息
+}
+```
 Ebyte: 1个字节，固定值：0xfb，标识数据包结束
 
 注1：上行数据包长度，即Length大小，限制4096字节内，下行不限
@@ -57,7 +67,7 @@ Ebyte: 1个字节，固定值：0xfb，标识数据包结束
 
 * 后端push协议格式(udp)
 ```
-Cmd+Subcmd+UidLen+Uid+SidLen+Sid+RidLen+Rid+BodyLen+Body+ExtLen+Ext:
+Cmd+Subcmd+UidLen+Uid+SidLen+Sid+RidLen+Rid+BodyLen+Body:
 
 Cmd: 1个字节，经由connsvr直接转发给client
 Subcmd: 1个字节，经由connsvr直接转发给client
@@ -69,8 +79,6 @@ RidLen: 1个字节，代表Rid长度
 Rid: 房间id
 BodyLen: 2个字节(网络字节序)，代表Body长度
 Body: 和业务方对接，connsvr会中转给client
-ExtLen: 2个字节(网络字节序)，代表Ext长度
-Ext: 扩展字段
 
 注：数据包长度限制50k内
 ```

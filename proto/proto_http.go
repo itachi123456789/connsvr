@@ -24,6 +24,7 @@ func (msg *MsgHttp) Encode() ([]byte, bool) {
 		"sid":    msg.sid,
 		"rid":    msg.rid,
 		"body":   msg.body,
+		"ext":    msg.ext,
 	})
 	var resp []byte
 	if callback, ok := msg.misc.(string); ok && callback != "" {

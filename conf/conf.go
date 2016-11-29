@@ -11,7 +11,11 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync/atomic"
+	"time"
 
+	"github.com/simplejia/clog"
+	"github.com/simplejia/connsvr/comm"
 	"github.com/simplejia/utils"
 )
 
@@ -32,6 +36,12 @@ type Conf struct {
 		C_RBUF         int    // 读缓冲区大小
 		C_WBUF         int    // 写缓冲区大小
 	}
+	VarHost *struct {
+		Addr     string
+		AddrType string
+		Host     string
+		Cgi      string
+	}
 	Pubs map[string]*struct {
 		Addr     string
 		AddrType string
@@ -49,11 +59,71 @@ type Conf struct {
 	}
 }
 
+type Var struct {
+	a          atomic.Value
+	GetMsgKind comm.GET_MSG_KIND // 1: 推送通知，然后客户端主动拉后端服务  2: 推送整条消息，客户端不用拉 3: 推送通知，然后客户端来connsvr拉消息
+}
+
+func (v *Var) Get() *Var {
+	return v.a.Load().(*Var)
+}
+
+func (v *Var) Set(nv *Var) {
+	v.a.Store(nv)
+}
+
 var (
 	Envs map[string]*Conf
 	Env  string
 	C    *Conf
+	V    *Var
 )
+
+// 请赋值成自己的根据addrType, addr返回ip:port的函数
+var VarAddrFunc = func(addrType, addr string) (string, error) {
+	return addr, nil
+}
+
+func remoteConf() {
+	V = &Var{
+		GetMsgKind: comm.NOTIFY,
+	}
+	V.Set(V)
+
+	go func() {
+		for {
+			time.Sleep(time.Minute)
+
+			addr, err := VarAddrFunc(C.VarHost.AddrType, C.VarHost.Addr)
+			if err != nil {
+				clog.Error("remoteConf() VarAddrFunc error: %v", err)
+				continue
+			}
+			headers := map[string]string{
+				"Host": C.VarHost.Host,
+			}
+			uri := fmt.Sprintf("http://%s/%s", addr, strings.TrimPrefix(C.VarHost.Cgi, "/"))
+			gpp := &utils.GPP{
+				Uri:     uri,
+				Headers: headers,
+			}
+			body, err := utils.Get(gpp)
+			if err != nil {
+				clog.Error("remoteConf() http error, err: %v, body: %s, gpp: %v", err, body, gpp)
+				continue
+			}
+
+			v := &Var{}
+			err = json.Unmarshal(body, v)
+			if err != nil {
+				clog.Error("remoteConf() json.Unmarshal error, err: %v, body: %s", err, body)
+				continue
+			}
+
+			V.Set(v)
+		}
+	}()
+}
 
 func init() {
 	flag.StringVar(&Env, "env", "prod", "set env")
@@ -134,6 +204,8 @@ func init() {
 	}()
 
 	fmt.Printf("Env: %s\nC: %s\n", Env, utils.Iprint(C))
+
+	remoteConf()
 
 	return
 }

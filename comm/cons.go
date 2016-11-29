@@ -1,4 +1,4 @@
-//go:generate stringer -type=CMD,PROTO -output=cons_string.go
+//go:generate stringer -type=CMD,GET_MSG_KIND,PROTO -output=cons_string.go
 
 package comm
 
@@ -12,6 +12,14 @@ const (
 	LEAVE
 	PUB
 	ERR = 0xff
+)
+
+type GET_MSG_KIND byte
+
+const (
+	NOTIFY GET_MSG_KIND = iota + 1 // 1
+	DISPLAY
+	CONNDATA
 )
 
 type PROTO int
@@ -36,4 +44,8 @@ type Stat struct {
 	Num   int
 	Btime time.Time
 	Etime time.Time
+}
+
+type ServExt struct {
+	GetMsgKind GET_MSG_KIND
 }
