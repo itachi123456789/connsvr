@@ -20,7 +20,7 @@ import (
 func TestHttp(t *testing.T) {
 	cmd := 99
 	rid := "r1"
-	uid := "u1"
+	uid := "u_TestHttp"
 	sid := "s1"
 	text := "hello world"
 
@@ -31,6 +31,9 @@ func TestHttp(t *testing.T) {
 		defer wg.Done()
 		gpp := &utils.GPP{
 			Uri: fmt.Sprintf("http://:%d/enter", conf.C.App.Hport),
+			Headers: map[string]string{
+				"Connection": "Close",
+			},
 			Params: map[string]string{
 				"rid":      rid,
 				"uid":      uid,
@@ -46,7 +49,7 @@ func TestHttp(t *testing.T) {
 		var m map[string]string
 		json.Unmarshal(resp, &m)
 		if _cmd := m["cmd"]; _cmd != strconv.Itoa(cmd) {
-			t.Errorf("get: %s, expected: %s", _cmd, cmd)
+			t.Errorf("get: %v, expected: %v", _cmd, cmd)
 		}
 		if _uid := m["uid"]; _uid != uid {
 			t.Errorf("get: %s, expected: %s", _uid, uid)

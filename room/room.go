@@ -3,6 +3,7 @@ package room
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"time"
 
 	"github.com/simplejia/clog"
@@ -10,6 +11,7 @@ import (
 	"github.com/simplejia/connsvr/conf"
 	"github.com/simplejia/connsvr/conn"
 	"github.com/simplejia/connsvr/proto"
+	"github.com/simplejia/lc"
 	"github.com/simplejia/utils"
 )
 
@@ -18,6 +20,73 @@ const (
 	DEL
 	PUSH
 )
+
+type msgElem struct {
+	id   string
+	body string
+	uid  string
+}
+
+type msgList []*msgElem
+
+func (a msgList) Len() int           { return len(a) }
+func (a msgList) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a msgList) Less(i, j int) bool { return a[i].id < a[j].id }
+
+func (a msgList) Key4Lc(rid string) string {
+	return "conn:msgs:" + rid
+}
+
+func (a msgList) Append(id, body, rid, uid string) {
+	key_lc := a.Key4Lc(rid)
+	a_lc, _ := lc.Get(key_lc)
+	if a_lc != nil {
+		a = a_lc.(msgList)
+	}
+
+	x := &msgElem{
+		id:   id,
+		body: body,
+		uid:  uid,
+	}
+	i := sort.Search(len(a), func(i int) bool { return a[i].id >= id })
+	if i == len(a) {
+		a = append(a, x)
+	} else if a[i].id == id {
+		// unexpected here
+	} else {
+		a = append(a[:i], append([]*msgElem{x}, a[i:]...)...)
+	}
+
+	n := conf.V.Get().ConnMsgNum
+	if len(a) > n {
+		a = a[len(a)-n:]
+	}
+
+	lc.Set(key_lc, a, time.Hour)
+}
+
+func (a msgList) Bodys(id, rid, uid string) string {
+	key_lc := a.Key4Lc(rid)
+	a_lc, _ := lc.Get(key_lc)
+	if a_lc != nil {
+		a = a_lc.(msgList)
+	}
+
+	i := sort.Search(len(a), func(i int) bool { return a[i].id > id })
+	var bodys []string
+	for _, e := range a[i:] {
+		// 过滤掉自己的消息
+		if e.uid == uid {
+			continue
+		}
+		bodys = append(bodys, e.body)
+	}
+	bs, _ := json.Marshal(bodys)
+	return string(bs)
+}
+
+var ML msgList
 
 type roomMsg struct {
 	cmd  int
@@ -90,6 +159,11 @@ func (roomMap *RoomMap) proc(i int) {
 				break
 			}
 
+			ext := &comm.ServExt{
+				GetMsgKind: conf.V.Get().GetMsgKind,
+			}
+			ext_bs, _ := json.Marshal(ext)
+
 			btime := time.Now()
 			ukey_ex := [2]string{m.Uid(), m.Sid()}
 			for ukey, connWrap := range rids_m {
@@ -114,11 +188,9 @@ func (roomMap *RoomMap) proc(i int) {
 				msg.SetUid(connWrap.Uid)
 				msg.SetSid(connWrap.Sid)
 				msg.SetRid(m.Rid())
-				msg.SetBody(m.Body())
-				ext := &comm.ServExt{
-					GetMsgKind: conf.V.Get().GetMsgKind,
+				if ext.GetMsgKind == comm.DISPLAY {
+					msg.SetBody(m.Body())
 				}
-				ext_bs, _ := json.Marshal(ext)
 				msg.SetExt(string(ext_bs))
 				msg.SetMisc(connWrap.Misc)
 				if ok := connWrap.Write(msg); !ok {
@@ -173,12 +245,22 @@ func (roomMap *RoomMap) Del(rid string, connWrap *conn.ConnWrap) {
 	}
 }
 
-func (roomMap *RoomMap) Push(rid string, msg proto.Msg) {
-	clog.Info("RoomMap:Push() %s, %+v", rid, msg)
+func (roomMap *RoomMap) Push(msg proto.Msg) {
+	clog.Info("RoomMap:Push() %+v", msg)
+
+	var pushExt *comm.PushExt
+	if ext := msg.Ext(); ext != "" {
+		err := json.Unmarshal([]byte(ext), &pushExt)
+		if err != nil {
+			clog.Error("RoomMap:Push() json.Unmarshal error: %v", err)
+			return
+		}
+		ML.Append(pushExt.MsgId, msg.Body(), msg.Rid(), msg.Uid())
+	}
 
 	for _, ch := range roomMap.chs {
 		select {
-		case ch <- &roomMsg{cmd: PUSH, rid: rid, body: msg}:
+		case ch <- &roomMsg{cmd: PUSH, rid: msg.Rid(), body: msg}:
 		default:
 			clog.Error("RoomMap:Push() chan full")
 		}

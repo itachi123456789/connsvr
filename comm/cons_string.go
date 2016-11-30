@@ -4,9 +4,9 @@ package comm
 
 import "fmt"
 
-const _CMD_name = "PINGENTERLEAVEPUB"
+const _CMD_name = "PINGENTERLEAVEPUBMSGS"
 
-var _CMD_index = [...]uint8{0, 4, 9, 14, 17}
+var _CMD_index = [...]uint8{0, 4, 9, 14, 17, 21}
 
 func (i CMD) String() string {
 	i -= 1

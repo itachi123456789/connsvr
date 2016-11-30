@@ -40,5 +40,5 @@ func Bserver(host string) {
 }
 
 func dispatchCmd(msg proto.Msg) {
-	room.RM.Push(msg.Rid(), msg)
+	room.RM.Push(msg)
 }

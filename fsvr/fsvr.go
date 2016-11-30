@@ -143,6 +143,14 @@ func dispatchCmd(connWrap *conn.ConnWrap, msg proto.Msg) bool {
 		}
 		connWrap.Write(msg)
 		return true
+	case comm.MSGS:
+		clog.Info("dispatchCmd() comm.MSGS: %+v", msg)
+
+		msgId := msg.Body()
+		bodys := room.ML.Bodys(msgId, msg.Rid(), msg.Uid())
+		msg.SetBody(bodys)
+		connWrap.Write(msg)
+		return true
 	default:
 		clog.Warn("dispatchCmd() unexpected cmd: %v", msg.Cmd())
 		return true

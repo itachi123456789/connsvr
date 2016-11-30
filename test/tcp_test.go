@@ -18,7 +18,7 @@ import (
 func TestTcp(t *testing.T) {
 	cmd := 99
 	rid := "r1"
-	uid := "u1"
+	uid := "u_TestTcp"
 	text := "hello world"
 
 	wg := sync.WaitGroup{}

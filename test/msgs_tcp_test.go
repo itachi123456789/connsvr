@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"encoding/json"
 	"fmt"
 
 	_ "github.com/simplejia/connsvr"
@@ -13,10 +14,39 @@ import (
 	"testing"
 )
 
-func TestPub(t *testing.T) {
+func TestMsgsTcp(t *testing.T) {
+	cmd := 99
 	rid := "r1"
-	uid := "u_TestPub"
+	uid := "u_TestMsgsTcp"
 	text := "hello world"
+	msgId := ""
+
+	func() {
+		conn, err := net.Dial(
+			"udp",
+			fmt.Sprintf("%s:%d", utils.GetLocalIp(), conf.C.App.Bport),
+		)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer conn.Close()
+
+		msg := proto.NewMsg(comm.UDP)
+		msg.SetCmd(comm.CMD(cmd))
+		msg.SetRid(rid)
+		msg.SetUid(uid)
+		msg.SetBody(text)
+		msg.SetExt(`{"msgid": "1"}`)
+		data, ok := msg.Encode()
+		if !ok {
+			t.Fatal("msg.Encode() error")
+		}
+
+		_, err = conn.Write(data)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}()
 
 	conn, err := net.Dial(
 		"tcp",
@@ -28,26 +58,11 @@ func TestPub(t *testing.T) {
 	defer conn.Close()
 
 	msg := proto.NewMsg(comm.TCP)
-	msg.SetCmd(comm.ENTER)
-	msg.SetUid(uid)
+	msg.SetCmd(comm.MSGS)
+	msg.SetUid("")
 	msg.SetRid(rid)
+	msg.SetBody(msgId)
 	data, ok := msg.Encode()
-	if !ok {
-		t.Fatal("msg.Encode() error")
-	}
-
-	_, err = conn.Write(data)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	msg = proto.NewMsg(comm.TCP)
-	msg.SetCmd(comm.PUB)
-	msg.SetSubcmd(1)
-	msg.SetUid(uid)
-	msg.SetRid(rid)
-	msg.SetBody(text)
-	data, ok = msg.Encode()
 	if !ok {
 		t.Fatal("msg.Encode() error")
 	}
@@ -75,14 +90,13 @@ func TestPub(t *testing.T) {
 
 	if _msg.Cmd() == comm.ERR {
 		t.Errorf("get: %v, expected: %v", _msg.Cmd(), msg.Cmd())
-		t.Errorf("please check you conf(pubs)!!!")
-	}
-	if _msg.Uid() != uid {
-		t.Errorf("get: %s, expected: %s", _msg.Uid(), uid)
 	}
 	if _msg.Rid() != rid {
 		t.Errorf("get: %s, expected: %s", _msg.Rid(), rid)
 	}
 
-	t.Log("get resp:", _msg.Body())
+	expect_body, _ := json.Marshal([]string{text})
+	if body := _msg.Body(); body != string(expect_body) {
+		t.Errorf("get: %s, expected: %s", _msg.Body(), expect_body)
+	}
 }

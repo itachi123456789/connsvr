@@ -11,6 +11,7 @@ const (
 	ENTER
 	LEAVE
 	PUB
+	MSGS
 	ERR = 0xff
 )
 
@@ -46,6 +47,16 @@ type Stat struct {
 	Etime time.Time
 }
 
+// ServExt is from remote conf
 type ServExt struct {
 	GetMsgKind GET_MSG_KIND
+}
+
+// PushExt is from backend
+type PushExt struct {
+	MsgId string
+}
+
+// CliExt is from client
+type CliExt struct {
 }

@@ -13,10 +13,13 @@ import (
 	"github.com/simplejia/connsvr/comm"
 	"github.com/simplejia/connsvr/conf"
 	"github.com/simplejia/connsvr/fsvr"
+	"github.com/simplejia/lc"
 	"github.com/simplejia/utils"
 )
 
 func init() {
+	lc.Init(1e5)
+
 	// 定期上报，用于后端维护connsvr服务器列表
 	go func() {
 		tick := time.Tick(time.Minute)

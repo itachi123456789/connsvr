@@ -83,6 +83,23 @@ func (msg *MsgHttp) Decode(data []byte) bool {
 		msg.misc = callback
 		msg.cmd = comm.ENTER
 		return true
+	case "/msgs":
+		values := pUrl.Query()
+		rid := values.Get("rid")
+		mid := values.Get("mid")
+		callback := values.Get("callback")
+		if rid == "" {
+			return false
+		}
+		if len(rid) > 255 || len(mid) > 255 || len(callback) > 255 {
+			return false
+		}
+
+		msg.rid = rid
+		msg.body = mid
+		msg.misc = callback
+		msg.cmd = comm.MSGS
+		return true
 	default:
 		return false
 	}
