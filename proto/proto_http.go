@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/simplejia/clog"
 	"github.com/simplejia/connsvr/comm"
 
 	"fmt"
@@ -73,7 +74,10 @@ func (msg *MsgHttp) Decode(data []byte) bool {
 		if rid == "" || uid == "" {
 			return false
 		}
-		if len(rid) > 255 || len(uid) > 255 || len(sid) > 255 || len(callback) > 255 {
+		if len(rid) > 255 ||
+			len(uid) > 255 ||
+			len(sid) > 255 ||
+			len(callback) > 255 {
 			return false
 		}
 
@@ -87,15 +91,29 @@ func (msg *MsgHttp) Decode(data []byte) bool {
 		values := pUrl.Query()
 		rid := values.Get("rid")
 		uid := values.Get("uid")
+		sid := values.Get("sid")
 		subcmd := values.Get("subcmd")
-		subcmd_i, _ := strconv.Atoi(subcmd)
 		mid := values.Get("mid")
 		callback := values.Get("callback")
 		if rid == "" {
 			return false
 		}
-		if len(rid) > 255 || len(uid) > 255 || len(mid) > 255 || len(callback) > 255 {
+		if len(rid) > 255 ||
+			len(uid) > 255 ||
+			len(sid) > 255 ||
+			len(mid) > 255 ||
+			len(callback) > 255 {
 			return false
+		}
+
+		subcmd_b := byte(0)
+		if subcmd != "" {
+			subcmd_i, err := strconv.Atoi(subcmd)
+			if err != nil || subcmd_i < 0 || subcmd_i > 255 {
+				clog.Error("MsgHttp:Decode() err: %v, subcmd: %v", err, subcmd)
+				return false
+			}
+			subcmd_b = byte(subcmd_i)
 		}
 
 		msg.rid = rid
@@ -103,7 +121,7 @@ func (msg *MsgHttp) Decode(data []byte) bool {
 		msg.body = mid
 		msg.misc = callback
 		msg.cmd = comm.MSGS
-		msg.subcmd = byte(subcmd_i)
+		msg.subcmd = subcmd_b
 		return true
 	default:
 		return false

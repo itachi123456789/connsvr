@@ -24,6 +24,7 @@
 ## 协议
 * http长连接
 ```
+** 加入房间 **
 http://xxx.xxx.com/enter?rid=xxx&uid=xxx&sid=xxx&callback=xxx
 请求参数说明:
 rid: 房间号
@@ -33,7 +34,23 @@ callback: jsonp回调函数，[可选]
 
 返回数据说明：
 [callback(][json body][)]
-示例如下: cb({"body":"hello world","cmd":"99","rid":"r1","sid":"","subcmd":"0","uid":"r2"})
+示例如下: cb({"body":"hello world","cmd":"2","rid":"r1","sid":"","subcmd":"0","uid":"r2"})
+```
+
+```
+** 拉取消息 **
+http://xxx.xxx.com/msgs?rid=xxx&uid=xxx&sid=xxx&subcmd=xxx&mid=xxx&callback=xxx
+请求参数说明:
+rid: 房间号
+uid: 用户id
+sid: session_id，区分同一uid不同连接，[可选]
+subcmd: 用于区分不同业务，有效数据：1~255之间
+mid: 客户端读到的最后一条消息，没有传空
+callback: jsonp回调函数，[可选]
+
+返回数据说明：
+[callback(][json body][)]
+示例如下: cb({"body":["hello world"],"cmd":"5","rid":"r1","sid":"","subcmd":"0","uid":"r2"})
 ```
 
 * tcp自定义协议长连接（包括收包，回包）
