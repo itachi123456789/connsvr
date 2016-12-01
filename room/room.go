@@ -3,7 +3,10 @@ package room
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"sort"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/simplejia/clog"
@@ -21,33 +24,33 @@ const (
 	PUSH
 )
 
-type msgElem struct {
+type MsgElem struct {
 	id   string
 	body string
 	uid  string
 }
 
-type msgList []*msgElem
+type MsgList []*MsgElem
 
-func (a msgList) Len() int           { return len(a) }
-func (a msgList) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a msgList) Less(i, j int) bool { return a[i].id < a[j].id }
+func (a MsgList) Len() int           { return len(a) }
+func (a MsgList) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a MsgList) Less(i, j int) bool { return a[i].id < a[j].id }
 
-func (a msgList) Key4Lc(rid string) string {
+func (a MsgList) Key4Lc(rid string) string {
 	return "conn:msgs:" + rid
 }
 
-func (a msgList) Append(id, body, rid, uid string) {
-	key_lc := a.Key4Lc(rid)
+func (a MsgList) Append(id string, msg proto.Msg) {
+	key_lc := a.Key4Lc(msg.Rid())
 	a_lc, _ := lc.Get(key_lc)
 	if a_lc != nil {
-		a = a_lc.(msgList)
+		a = a_lc.(MsgList)
 	}
 
-	x := &msgElem{
+	x := &MsgElem{
 		id:   id,
-		body: body,
-		uid:  uid,
+		body: msg.Body(),
+		uid:  msg.Uid(),
 	}
 	i := sort.Search(len(a), func(i int) bool { return a[i].id >= id })
 	if i == len(a) {
@@ -55,7 +58,7 @@ func (a msgList) Append(id, body, rid, uid string) {
 	} else if a[i].id == id {
 		// unexpected here
 	} else {
-		a = append(a[:i], append([]*msgElem{x}, a[i:]...)...)
+		a = append(a[:i], append([]*MsgElem{x}, a[i:]...)...)
 	}
 
 	n := conf.V.Get().ConnMsgNum
@@ -66,27 +69,107 @@ func (a msgList) Append(id, body, rid, uid string) {
 	lc.Set(key_lc, a, time.Hour)
 }
 
-func (a msgList) Bodys(id, rid, uid string) string {
-	key_lc := a.Key4Lc(rid)
-	a_lc, _ := lc.Get(key_lc)
+// 请赋值成自己的根据addrType, addr返回ip:port的函数
+var MsgAddrFunc = func(addrType, addr string) (string, error) {
+	return addr, nil
+}
+
+func (a MsgList) Bodys(id string, msg proto.Msg) (strs string) {
+	key_lc := a.Key4Lc(msg.Rid())
+	a_lc, ok := lc.Get(key_lc)
 	if a_lc != nil {
-		a = a_lc.(msgList)
+		a = a_lc.(MsgList)
+	}
+
+	// 但connsvr缓存消息为空时，路由到后端服务拉取数据
+	if len(a) == 0 && !ok {
+		subcmd := strconv.Itoa(int(msg.Subcmd()))
+		c := conf.C.Msgs[subcmd]
+		if c == nil {
+			clog.Error("MsgList:Bodys() no expected subcmd: %s", subcmd)
+			return
+		}
+		addr, err := MsgAddrFunc(c.AddrType, c.Addr)
+		if err != nil {
+			clog.Error("MsgList:Bodys() MsgAddrFunc error: %v", err)
+			return
+		}
+		arrs := []string{
+			strconv.Itoa(int(msg.Cmd())),
+			subcmd,
+			msg.Uid(),
+			msg.Sid(),
+			msg.Rid(),
+		}
+		ps := map[string]string{}
+		values, _ := url.ParseQuery(fmt.Sprintf(c.Params, utils.Slice2Interface(arrs)...))
+		for k, vs := range values {
+			ps[k] = vs[0]
+		}
+
+		timeout, _ := time.ParseDuration(c.Timeout)
+
+		headers := map[string]string{
+			"Host": c.Host,
+		}
+
+		uri := fmt.Sprintf("http://%s/%s", addr, strings.TrimPrefix(c.Cgi, "/"))
+
+		gpp := &utils.GPP{
+			Uri:     uri,
+			Timeout: timeout,
+			Headers: headers,
+			Params:  ps,
+		}
+
+		body, err := utils.Get(gpp)
+		if err != nil {
+			clog.Error("MsgList:utils.Get() http error, err: %v, body: %s, gpp: %v", err, body, gpp)
+			return
+		}
+		clog.Debug("MsgList:utils.Get() http success, body: %s, gpp: %v", body, gpp)
+
+		var ms comm.Msgs
+		err = json.Unmarshal(body, &ms)
+		if err != nil {
+			clog.Error("MsgList:json.Unmarshal() error, err: %v, body: %s, gpp: %v", err, body, gpp)
+			return
+		}
+
+		for _, m := range ms {
+			a = append(a, &MsgElem{
+				id:   m.MsgId,
+				body: m.Body,
+				uid:  m.Uid,
+			})
+		}
+
+		// 当后端也没有数据时，放一个空数据，避免下次再次拉取
+		if len(a) == 0 {
+			a = append(a, &MsgElem{})
+		}
+
+		lc.Set(key_lc, a, time.Hour)
 	}
 
 	i := sort.Search(len(a), func(i int) bool { return a[i].id > id })
 	var bodys []string
 	for _, e := range a[i:] {
-		// 过滤掉自己的消息
-		if e.uid == uid {
-			continue
+		// 过滤掉自己的消息，但当客户端传入id为空时（客户端无缓存消息），不用过滤
+		if id != "" {
+			if e.uid == msg.Uid() {
+				continue
+			}
 		}
 		bodys = append(bodys, e.body)
 	}
 	bs, _ := json.Marshal(bodys)
-	return string(bs)
+	strs = string(bs)
+
+	return
 }
 
-var ML msgList
+var ML MsgList
 
 type roomMsg struct {
 	cmd  int
@@ -255,7 +338,7 @@ func (roomMap *RoomMap) Push(msg proto.Msg) {
 			clog.Error("RoomMap:Push() json.Unmarshal error: %v", err)
 			return
 		}
-		ML.Append(pushExt.MsgId, msg.Body(), msg.Rid(), msg.Uid())
+		ML.Append(pushExt.MsgId, msg)
 	}
 
 	for _, ch := range roomMap.chs {

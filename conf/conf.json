@@ -34,6 +34,16 @@
                 "timeout": "50ms"
             }
         },
+        "msgs": {
+            "1": {
+                "addr": "127.0.0.1:80",
+                "addrType": "ip",
+                "host": "xxx.xxx.com",
+                "cgi": "/c/a",
+                "params": "cmd=%s&subcmd=%s&uid=%s&sid=%s&rid=%s",
+                "timeout": "80ms"
+            }
+        },
         "clog": {
             "name":"connsvr",
             "mode": 3, // 0: none, 1: localfile, 2: clog (数字代表bit位)
@@ -75,6 +85,16 @@
                 "timeout": "50ms"
             }
         },
+        "msgs": {
+            "1": {
+                "addr": "127.0.0.1:80",
+                "addrType": "ip",
+                "host": "xxx.xxx.com",
+                "cgi": "/c/a",
+                "params": "cmd=%s&subcmd=%s&uid=%s&sid=%s&rid=%s",
+                "timeout": "80ms"
+            }
+        },
         "clog": {
             "name":"connsvr",
             "mode": 3, // 0: none, 1: localfile, 2: clog (数字代表bit位)
@@ -114,6 +134,16 @@
                 "method": "post",
                 "retry": 0,
                 "timeout": "50ms"
+            }
+        },
+        "msgs": {
+            "1": {
+                "addr": "127.0.0.1:80",
+                "addrType": "ip",
+                "host": "xxx.xxx.com",
+                "cgi": "/c/a",
+                "params": "cmd=%s&subcmd=%s&uid=%s&sid=%s&rid=%s",
+                "timeout": "80ms"
             }
         },
         "clog": {

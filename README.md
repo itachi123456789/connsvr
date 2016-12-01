@@ -42,7 +42,7 @@ Sbyte+Length+Cmd+Subcmd+UidLen+Uid+SidLen+Sid+RidLen+Rid+BodyLen+Body+ExtLen+Ext
 
 Sbyte: 1个字节，固定值：0xfa，标识数据包开始
 Length: 2个字节(网络字节序)，包括自身在内整个数据包的长度
-Cmd: 1个字节，0x01：心跳 0x02：加入房间 0x03：退出房间 0x04：上行消息 0xff：connsvr异常
+Cmd: 1个字节，0x01：心跳 0x02：加入房间 0x03：退出房间 0x04：上行消息 0x05：拉取消息列表 0xff：connsvr异常
 Subcmd: 1个字节，当用于上行消息时，路由不同的后端接口
 UidLen: 1个字节，代表Uid长度
 Uid: 用户id，对于app，可以是设备id，对于浏览器，可以是登陆用户id
@@ -61,6 +61,7 @@ Ebyte: 1个字节，固定值：0xfb，标识数据包结束
 
 注1：上行数据包长度，即Length大小，限制4096字节内（可配置），下行不限
 注2：当connsvr服务处理异常，比如调用后端服务失败，返回给client的数据包，Cmd：0xff
+注3：当Cmd为0x05时，客户端到connsvr拉取消息列表，当connsvr消息为空时，connsvr为根据conf/conf.json msgs节点配置路由到后端服务拉取消息列表
 ```
 
 * 后端push协议格式(udp)

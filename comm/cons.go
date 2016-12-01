@@ -47,6 +47,13 @@ type Stat struct {
 	Etime time.Time
 }
 
+// Msgs is from logic svr
+type Msgs []*struct {
+	MsgId string
+	Uid   string
+	Body  string
+}
+
 // ServExt is from remote conf
 type ServExt struct {
 	GetMsgKind GET_MSG_KIND

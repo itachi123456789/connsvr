@@ -86,19 +86,24 @@ func (msg *MsgHttp) Decode(data []byte) bool {
 	case "/msgs":
 		values := pUrl.Query()
 		rid := values.Get("rid")
+		uid := values.Get("uid")
+		subcmd := values.Get("subcmd")
+		subcmd_i, _ := strconv.Atoi(subcmd)
 		mid := values.Get("mid")
 		callback := values.Get("callback")
 		if rid == "" {
 			return false
 		}
-		if len(rid) > 255 || len(mid) > 255 || len(callback) > 255 {
+		if len(rid) > 255 || len(uid) > 255 || len(mid) > 255 || len(callback) > 255 {
 			return false
 		}
 
 		msg.rid = rid
+		msg.uid = uid
 		msg.body = mid
 		msg.misc = callback
 		msg.cmd = comm.MSGS
+		msg.subcmd = byte(subcmd_i)
 		return true
 	default:
 		return false

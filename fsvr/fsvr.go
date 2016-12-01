@@ -72,7 +72,7 @@ func dispatchCmd(connWrap *conn.ConnWrap, msg proto.Msg) bool {
 		room.RM.Del(msg.Rid(), connWrap)
 		return true
 	case comm.PUB:
-		clog.Info("dispatchCmd() comm.PUSH: %+v", msg)
+		clog.Debug("dispatchCmd() comm.PUSH: %+v", msg)
 
 		subcmd := strconv.Itoa(int(msg.Subcmd()))
 		pub := conf.C.Pubs[subcmd]
@@ -130,7 +130,7 @@ func dispatchCmd(connWrap *conn.ConnWrap, msg proto.Msg) bool {
 			if err != nil {
 				clog.Error("dispatchCmd() http error, err: %v, body: %s, gpp: %v, step: %d", err, body, gpp, step)
 			} else {
-				clog.Info("dispatchCmd() http success, body: %s, gpp: %v", body, gpp)
+				clog.Debug("dispatchCmd() http success, body: %s, gpp: %v", body, gpp)
 				break
 			}
 		}
@@ -147,7 +147,7 @@ func dispatchCmd(connWrap *conn.ConnWrap, msg proto.Msg) bool {
 		clog.Info("dispatchCmd() comm.MSGS: %+v", msg)
 
 		msgId := msg.Body()
-		bodys := room.ML.Bodys(msgId, msg.Rid(), msg.Uid())
+		bodys := room.ML.Bodys(msgId, msg)
 		msg.SetBody(bodys)
 		connWrap.Write(msg)
 		return true

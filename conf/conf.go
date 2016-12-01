@@ -52,6 +52,14 @@ type Conf struct {
 		Method   string
 		Timeout  string
 	}
+	Msgs map[string]*struct {
+		Addr     string
+		AddrType string
+		Host     string
+		Cgi      string
+		Params   string
+		Timeout  string
+	}
 	Clog *struct {
 		Name  string
 		Mode  int
