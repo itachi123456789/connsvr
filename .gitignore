@@ -24,6 +24,3 @@ _testmain.go
 *.prof
 
 connsvr
-mypubaddrfunc.go
-myvaraddrfunc.go
-mymsgaddrfunc.go
