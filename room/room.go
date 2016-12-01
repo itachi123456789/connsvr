@@ -284,7 +284,7 @@ func (roomMap *RoomMap) proc(i int) {
 			}
 			etime := time.Now()
 			stat, _ := json.Marshal(&comm.Stat{
-				Ip:    utils.GetLocalIp(),
+				Ip:    utils.LocalIp,
 				N:     i,
 				Rid:   rid,
 				Msg:   fmt.Sprintf("%+v", m),

@@ -25,7 +25,7 @@ func TestMsgsHttp(t *testing.T) {
 	func() {
 		conn, err := net.Dial(
 			"udp",
-			fmt.Sprintf("%s:%d", utils.GetLocalIp(), conf.C.App.Bport),
+			fmt.Sprintf("%s:%d", utils.LocalIp, conf.C.App.Bport),
 		)
 		if err != nil {
 			t.Fatal(err)

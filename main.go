@@ -26,7 +26,7 @@ func init() {
 		for {
 			select {
 			case <-tick:
-				clog.Busi(comm.BUSI_REPORT, "%s:%d", utils.GetLocalIp(), conf.C.App.Bport)
+				clog.Busi(comm.BUSI_REPORT, "%s:%d", utils.LocalIp, conf.C.App.Bport)
 			}
 		}
 	}()
@@ -39,7 +39,7 @@ func main() {
 
 	go fsvr.Fserver(fmt.Sprintf("%s:%d", "0.0.0.0", conf.C.App.Hport), comm.HTTP)
 
-	go bsvr.Bserver(fmt.Sprintf("%s:%d", utils.GetLocalIp(), conf.C.App.Bport))
+	go bsvr.Bserver(fmt.Sprintf("%s:%d", utils.LocalIp, conf.C.App.Bport))
 
 	select {}
 }

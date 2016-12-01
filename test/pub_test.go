@@ -20,7 +20,7 @@ func TestPub(t *testing.T) {
 
 	conn, err := net.Dial(
 		"tcp",
-		fmt.Sprintf("%s:%d", utils.GetLocalIp(), conf.C.App.Tport),
+		fmt.Sprintf("%s:%d", utils.LocalIp, conf.C.App.Tport),
 	)
 	if err != nil {
 		t.Fatal(err)
