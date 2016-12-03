@@ -11,6 +11,7 @@
             "buf_size4http": 128, // 一次读取数据大小, 大于http包头第一行
             "body_len_limit": 4096, // 包最大长度
             "u_map_num": 300, // 用户分组hash
+            "room_msg_len": 10000, // 房间消息队列长度
             "c_rtimeout": "2m", // 读超时
             "c_wtimeout": "10ms", // 写超时
             "c_rbuf": 512, // 读缓冲区大小
@@ -62,6 +63,7 @@
             "buf_size4http": 128, // 一次读取数据大小, 大于http包头第一行
             "body_len_limit": 4096, // 包最大长度
             "u_map_num": 300, // 用户分组hash
+            "room_msg_len": 10000, // 房间消息队列长度
             "c_rtimeout": "2m", // 读超时
             "c_wtimeout": "10ms", // 写超时
             "c_rbuf": 512, // 读缓冲区大小
@@ -113,6 +115,7 @@
             "buf_size4http": 128, // 一次读取数据大小, 大于http包头第一行
             "body_len_limit": 4096, // 包最大长度
             "u_map_num": 300, // 用户分组hash
+            "room_msg_len": 10000, // 房间消息队列长度
             "c_rtimeout": "2m", // 读超时
             "c_wtimeout": "10ms", // 写超时
             "c_rbuf": 512, // 读缓冲区大小
