@@ -59,16 +59,24 @@ Sbyte+Length+Cmd+Subcmd+UidLen+Uid+SidLen+Sid+RidLen+Rid+BodyLen+Body+ExtLen+Ext
 
 Sbyte: 1个字节，固定值：0xfa，标识数据包开始
 Length: 2个字节(网络字节序)，包括自身在内整个数据包的长度
-Cmd: 1个字节，0x01：心跳 0x02：加入房间 0x03：退出房间 0x04：上行消息 0x05：拉取消息列表 0xff：connsvr异常
-Subcmd: 1个字节，当用于上行消息时，路由不同的后端接口
+Cmd: 1个字节，
+  * 0x01：心跳 
+  * 0x02：加入房间 
+  * 0x03：退出房间 
+  * 0x04：上行消息 
+  * 0x05：拉取消息列表 
+  * 0xff：标识服务异常
+Subcmd: 1个字节，路由不同的后端接口，见conf/conf.json pubs和msgs节点，
+  * pubs代表上行消息配置，中转给业务方数据示例如下：uid=u1&rid=r1&cmd=99&subcmd=0&body=hello，直接把后端返回传回client
+  * msgs代表拉消息列表配置，中转给业务方数据示例如下：uid=u1&rid=r1&cmd=99&subcmd=0，返回给client示例如下：["xxx", "yyy"]
 UidLen: 1个字节，代表Uid长度
 Uid: 用户id，对于app，可以是设备id，对于浏览器，可以是登陆用户id
 SidLen: 1个字节，代表Sid长度
-Sid: session_id，区分同一uid不同连接，[可选]对于浏览器，可以是生成的随机串，浏览器多窗口，多标签需单独生成随机串
+Sid: session_id，区分同一uid不同连接，对于浏览器，可以是生成的随机串，浏览器多窗口，多标签需单独生成随机串
 RidLen: 1个字节，代表Rid长度
 Rid: 房间id
 BodyLen: 2个字节(网络字节序)，代表Body长度
-Body: 和业务方对接，connsvr会中转给业务方，中转给业务方数据示例如下：uid=u1&rid=r1&cmd=99&subcmd=0&body=hello，数据路由见conf/conf.json pubs节点
+Body: 和业务方对接，connsvr会中转给业务方
 ExtLen: 2个字节(网络字节序)，代表Ext长度
 Ext: 扩展字段，当来自于connsvr时，目前支持如下：
 {    
@@ -96,8 +104,10 @@ Rid: 房间id
 BodyLen: 2个字节(网络字节序)，代表Body长度
 Body: 和业务方对接，connsvr会中转给client
 ExtLen: 2个字节(网络字节序)，代表Ext长度
-Ext: 扩展字段
-
+Ext: 扩展字段，目前支持如下：
+{    
+    "MsgId": “1234” // 标识本条消息id      
+}
 注：数据包长度限制50k内
 ```
 
