@@ -186,7 +186,7 @@ func (roomMap *RoomMap) init() {
 	roomMap.n = conf.C.Cons.U_MAP_NUM
 	roomMap.chs = make([]chan *roomMsg, roomMap.n)
 	for i := 0; i < roomMap.n; i++ {
-		roomMap.chs[i] = make(chan *roomMsg, 1e5)
+		roomMap.chs[i] = make(chan *roomMsg, 1e4)
 		go roomMap.proc(i)
 	}
 }
